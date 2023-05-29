@@ -1,0 +1,49 @@
+﻿<Window x:Class="Hotel.MainWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Hotel"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
+        mc:Ignorable="d"
+        Title="АИС Администрирование гостиницы" Height="450" Width="800" MinHeight="380">
+    <Grid>
+        <Menu Background="#33908E8E"  VerticalAlignment="Top" >            
+            <MenuItem Header="_Файл" Height="20">                
+                <MenuItem Header="_Выход" />
+            </MenuItem>
+            <MenuItem Header="_Справочники" Height="20">
+                <MenuItem Header="_Клиенты" Click="MenuItem_Clients_Click" />
+                <MenuItem Header="_Статусы клиентов" />
+                <MenuItem Header="_Типы номеров" />
+                <MenuItem Header="_Типы питания" />
+                <Separator/>
+                <MenuItem Header="_Виды работ в номерах" />
+                <MenuItem Header="_Персонал" />
+                <MenuItem Header="_Предоставляемые услуги" />
+            </MenuItem>
+            <MenuItem Header="_Работа" Height="20">
+                <MenuItem Header="_Прайс-лист на номера" />
+                <MenuItem Header="_Номера" />
+                <MenuItem Header="_Контроль службы горничных" />
+                <MenuItem Header="_Сдача / бронирование номеров" />
+                <MenuItem Header="_Услуги клиентам" />
+                <MenuItem Header="_Лицевые счета клиентов" />
+                <MenuItem Header="_Шахматка" />
+            </MenuItem>
+            <MenuItem Header="_Печать" Height="20">
+                <MenuItem Header="_Должники" />
+                <MenuItem Header="_Свободные номера" />
+                <MenuItem Header="_Статистика" />
+            </MenuItem>
+        </Menu>
+        <StackPanel Margin="0,20,0,0" HorizontalAlignment="Left" Width="294" >            
+            <Button Click="Button_reservation_Click" Height="50" Margin="5" Content="Сдача / бронироавание номеров"/>
+            <Button Click="Button_chess_Click" Height="50" Margin="5" Content="Шахматка"/>
+            <Button Click="Button_personal_account_Click" Height="50" Margin="5" Content="Лицевые счета клиентов"/>
+            <Button Click="Button_maids_Click" Height="50" Margin="5" Content="Контроль службы грничных"/>
+            <Button Click="Button_price_list_Click" Height="50" Margin="5" Content="Прайс-лист на номера"/>
+            <Button Click="Button_servise_Click" Height="50" Margin="5" Content="Услуги клиентам"/>
+        </StackPanel>
+    </Grid>
+</Window>
