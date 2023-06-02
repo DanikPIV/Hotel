@@ -6,38 +6,38 @@
         xmlns:local="clr-namespace:Hotel"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
         mc:Ignorable="d"
-        Title="АИС Администрирование гостиницы" Height="450" Width="800" MinHeight="380">
+        Title="АИС Администрирование гостиницы" Height="450" Width="800" MinHeight="380" WindowStartupLocation="CenterScreen">
     <Grid>
         <Menu Background="#33908E8E"  VerticalAlignment="Top" >            
-            <MenuItem Header="_Файл" Height="20">                
+            <MenuItem Header="_Файл" Height="25">                
                 <MenuItem Header="_Выход" />
             </MenuItem>
-            <MenuItem Header="_Справочники" Height="20">
+            <MenuItem Header="_Справочники" Height="25">
                 <MenuItem Header="_Клиенты" Click="MenuItem_Clients_Click" />
-                <MenuItem Header="_Статусы клиентов" />
-                <MenuItem Header="_Типы номеров" />
-                <MenuItem Header="_Типы питания" />
+                <MenuItem Header="_Статусы клиентов" Click="MenuItem_Status_Clients_Click"/>
+                <MenuItem Header="_Типы номеров" Click="MenuItem_room_types_Click"/>
+                <MenuItem Header="_Типы питания" Click="MenuItem_type_of_food_Click"/>
                 <Separator/>
-                <MenuItem Header="_Виды работ в номерах" />
-                <MenuItem Header="_Персонал" />
-                <MenuItem Header="_Предоставляемые услуги" />
+                <MenuItem Header="_Виды работ в номерах" Click="MenuItem_servises_room_Click"/>
+                <MenuItem Header="_Персонал" Click="MenuItem_maid_Click"/>
+                <MenuItem Header="_Предоставляемые услуги" Click="MenuItem_servise_Click"/>
             </MenuItem>
-            <MenuItem Header="_Работа" Height="20">
-                <MenuItem Header="_Прайс-лист на номера" />
-                <MenuItem Header="_Номера" />
+            <MenuItem Header="_Работа" Height="25">
+                <MenuItem Header="_Прайс-лист на номера" Click="Button_price_list_Click"/>
+                <MenuItem Header="_Номера" Click="MenuItem_Rooms_Click"/>
                 <MenuItem Header="_Контроль службы горничных" />
                 <MenuItem Header="_Сдача / бронирование номеров" />
                 <MenuItem Header="_Услуги клиентам" />
                 <MenuItem Header="_Лицевые счета клиентов" />
                 <MenuItem Header="_Шахматка" />
             </MenuItem>
-            <MenuItem Header="_Печать" Height="20">
+            <MenuItem Header="_Печать" Height="25">
                 <MenuItem Header="_Должники" />
                 <MenuItem Header="_Свободные номера" />
                 <MenuItem Header="_Статистика" />
             </MenuItem>
         </Menu>
-        <StackPanel Margin="0,20,0,0" HorizontalAlignment="Left" Width="294" >            
+        <StackPanel Margin="0,20,0,0" HorizontalAlignment="Left" Width="294" VerticalAlignment="Center" >            
             <Button Click="Button_reservation_Click" Height="50" Margin="5" Content="Сдача / бронироавание номеров"/>
             <Button Click="Button_chess_Click" Height="50" Margin="5" Content="Шахматка"/>
             <Button Click="Button_personal_account_Click" Height="50" Margin="5" Content="Лицевые счета клиентов"/>

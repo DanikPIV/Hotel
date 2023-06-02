@@ -1,5 +1,6 @@
 ﻿using MaterialDesignThemes.Wpf.Internal;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
@@ -9,18 +10,22 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Xml.Linq;
+using static System.Data.Entity.Infrastructure.Design.Executor;
 
 namespace Hotel
 {
     /// <summary>
     /// Логика взаимодействия для ClientsWindow.xaml
     /// </summary>
-    public partial class ClientsWindow : Window
+    public partial class choiceClientsWindow : Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
         string query = "SELECT name AS \"ФИО\", status_clients.status AS \"Статус\", pasport AS \"Паспорт\", gender AS \"Пол\", birthday AS \"Дата рождения\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients, status_clients where status_clients.id = clients.status";
+        string query1 = "SELECT id as 'Шифр', type AS \"Тип питания\", description AS \"Описание\" FROM  type_of_foods";
         string name = null;
-        public ClientsWindow()
+        string id1 = null;
+        string type = null;
+        public choiceClientsWindow()
         {
             InitializeComponent();
 
@@ -38,6 +43,37 @@ namespace Hotel
             sqlConnection.Close();
 
         }
+
+        public choiceClientsWindow(string id)
+        {
+            InitializeComponent();
+            id1 = id;
+            refresh_table();
+            refresh_table1();
+            sqlConnection.Open();
+            string query = "SELECT status FROM status_clients";
+            SQLiteCommand command = new SQLiteCommand(query, sqlConnection);
+            SQLiteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                string status = reader.GetString(0);
+                comboBox_status.Items.Add(status);
+            }
+            sqlConnection.Close();
+
+        }
+
+        public void refresh_table1()
+        {
+            sqlConnection.Open();
+            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query1, sqlConnection);
+            DataTable dataTable = new DataTable();
+            dataAdapter.Fill(dataTable);
+            dataGrid1.ItemsSource = dataTable.DefaultView;
+            ClearTxt();
+            sqlConnection.Close();
+        }
+
         public void refresh_table()
         {
             sqlConnection.Open();
@@ -81,7 +117,7 @@ namespace Hotel
                 {
                     sqlConnection.Open();
 
-                    string sql = "INSERT INTO clients (name, status  pasport, gender, birthday, address, description) " +
+                    string sql = "INSERT INTO clients (name, status,  pasport, gender, birthday, address, description) " +
                                     "VALUES (\"" + txt_name.Text + "\", (select id from status_clients where status like \"%" + comboBox_status.Text + "%\"), \"" + txt_pasport.Text + "\", \"" + comboBox_gender.Text + "\", \"" + data_picker_birthday.Text + "\", \"" + txt_address.Text + "\", \"" + txt_description.Text + "\")";
 
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
@@ -89,10 +125,10 @@ namespace Hotel
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
+                    refresh_table();
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
                 
-                refresh_table();
             }
         }
 
@@ -189,6 +225,41 @@ namespace Hotel
 
                 name = Convert.ToString(selectedRow["ФИО"]);
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (name != null )
+            {
+                if (type != null)
+                {
+                    try
+                    {
+                    using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
+                    {
+                        connection.Open();
+                        SQLiteCommand command = new SQLiteCommand("UPDATE clients SET order_code = " + id1 + ", type_food = " + type + " WHERE name = @name", connection);
+                        command.Parameters.AddWithValue("@name", name);
+                        command.ExecuteNonQuery();
+                    }
+
+                    }
+                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    
+                    //refresh_table1("select name AS ФИО, type_of_foods.type AS 'Тип питания' from clients,  type_of_foods where type_of_foods.id = clients.type_food AND order_code = "+id1);
+                    Close();
+
+                }
+                else MessageBox.Show("Выберите тип питания");
+
+            }
+            else MessageBox.Show("Выберите клиента");
+        }
+
+        private void dataGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataRowView selectedRow = (DataRowView)dataGrid1.SelectedItem;
+            type = Convert.ToString(selectedRow["Шифр"]);
         }
     }
 }
