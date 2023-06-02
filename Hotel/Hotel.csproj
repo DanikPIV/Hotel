@@ -118,6 +118,9 @@
     <Compile Include="ClientsWindow.xaml.cs">
       <DependentUpon>ClientsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Maid_Contlol_Window.xaml.cs">
+      <DependentUpon>Maid_Contlol_Window.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Maid_Window.xaml.cs">
       <DependentUpon>Maid_Window.xaml</DependentUpon>
     </Compile>
@@ -166,6 +169,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ClientsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Maid_Contlol_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

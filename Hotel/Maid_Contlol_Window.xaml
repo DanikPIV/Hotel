@@ -4,9 +4,66 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel"
-        mc:Ignorable="d"
-        Title="Maid_Contlol_Window" Height="450" Width="800">
-    <Grid>
+        xmlns:SQLite="clr-namespace:System.Data.SQLite;assembly=System.Data.SQLite" 
         
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
+        mc:Ignorable="d"
+        Title="Прайс-лист на номера" Height="590" Width="1038" MinHeight="590" MinWidth="1050" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="311*"/>
+            <ColumnDefinition Width="330"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <GroupBox Header="Отбор" Margin="5,5,5,5">
+                <CheckBox Content="Действующие" Checked="CheckBox1_Checked" Unchecked ="CheckBox1_UnChecked"/>
+            </GroupBox>
+
+            <Button x:Name="delButton" Content="Удалить" Margin="40 10 10 10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="delButton_Click"/>
+            <Button x:Name="editButton" Content="Редактировать" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="editButton_Click"/>
+            <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            <Button x:Name="print" Content="Печать" Margin="10" VerticalAlignment="Bottom"/>
+
+        </StackPanel>
+        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Действует}" Value="Нет">
+                            <Setter Property="Background" Value="LightGray" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Действует}" Value="Да">
+                            <Setter Property="Background" Value="White" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Effect>
+                <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+            </DataGrid.Effect>
+        </DataGrid>
+        <StackPanel HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
+            <ComboBox x:Name="comboBox_type" materialDesign:HintAssist.Hint="Тип*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectedIndex="0"/>
+            <Label Content="Действует " Margin="0,10,0,-5"/>
+            <DatePicker x:Name="date_picker1" materialDesign:HintAssist.Hint="с*" Margin="5" Style="{StaticResource MaterialDesignDatePicker}" LostFocus="date_picker_LostFocus" />
+            <DatePicker x:Name="date_picker2" materialDesign:HintAssist.Hint="по*" Margin="5" Style="{StaticResource MaterialDesignDatePicker}" LostFocus="date_picker_LostFocus"/>
+            <ComboBox x:Name="comboBox_holiday" materialDesign:HintAssist.Hint="Выходной*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                <ComboBoxItem Content="Да"/>
+                <ComboBoxItem Content="Нет"/>
+            </ComboBox>
+            <ComboBox x:Name="comboBox_valid" materialDesign:HintAssist.Hint="Действует*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                <ComboBoxItem Content="Да"/>
+                <ComboBoxItem Content="Нет"/>
+            </ComboBox>
+            <TextBox x:Name="txt_price" materialDesign:HintAssist.Hint="Цена/сут*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+            <TextBox x:Name="txt_reservation_price" materialDesign:HintAssist.Hint="Цена брони/сут*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1" Height="32" Width="75">
+            <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
