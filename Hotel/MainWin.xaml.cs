@@ -35,13 +35,14 @@ namespace Hotel
         private void Button_chess_Click(object sender, RoutedEventArgs e)
         {
             Chess_Window chess_Window = new Chess_Window();
-            chess_Window.Show();
-            Close();
+            chess_Window.ShowDialog();
         }
 
         private void Button_personal_account_Click(object sender, RoutedEventArgs e)
         {
-
+            Persolal_Account_Window persolal_Account_Window = new Persolal_Account_Window();
+            persolal_Account_Window.Show();
+            Close();
         }
 
         private void Button_maids_Click(object sender, RoutedEventArgs e)
@@ -100,7 +101,7 @@ namespace Hotel
         {
             Rooms_Window rooms_Window = new Rooms_Window();
             rooms_Window.Show();
-            Close();    
+            Close();
         }
     }
 }

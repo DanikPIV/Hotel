@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SQLite;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Hotel
 {
@@ -57,7 +47,7 @@ namespace Hotel
 
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
-            if (txt_name.Text.Length == 0 ||  txt_position.Text.Length == 0 || txt_employe_mode.Text.Length == 0)
+            if (txt_name.Text.Length == 0 || txt_position.Text.Length == 0 || txt_employe_mode.Text.Length == 0)
             {
                 MessageBox.Show("Заполните все обязательные поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }

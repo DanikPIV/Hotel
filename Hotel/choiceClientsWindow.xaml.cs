@@ -1,16 +1,9 @@
-﻿using MaterialDesignThemes.Wpf.Internal;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data;
 using System.Data.SQLite;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Xml.Linq;
-using static System.Data.Entity.Infrastructure.Design.Executor;
 
 namespace Hotel
 {
@@ -98,8 +91,6 @@ namespace Hotel
 
         private void back_Click(object sender, RoutedEventArgs e)
         {
-            MainWin mainWin = new MainWin();
-            mainWin.Show();
             Close();
         }
 
@@ -128,7 +119,7 @@ namespace Hotel
                     refresh_table();
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-                
+
             }
         }
 
@@ -144,34 +135,35 @@ namespace Hotel
 
         }
 
-        
+
 
         private void delButton_Click(object sender, RoutedEventArgs e)
         {
-            
-                if (name == null)
-                    MessageBox.Show("Выберите запись", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                else
+
+            if (name == null)
+                MessageBox.Show("Выберите запись", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            else
+            {
+                if (MessageBox.Show($"Удалить запись {name}?", "Подтверждение", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 {
-                    if (MessageBox.Show($"Удалить запись {name}?", "Подтверждение", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK){
-                        try
+                    try
+                    {
+                        using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
-                            using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
-                            {
-                                connection.Open();
-                                SQLiteCommand command = new SQLiteCommand($"DELETE FROM clients WHERE name = \"{name}\"", connection);
-                                command.ExecuteNonQuery();
-                                refresh_table();
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                            }
+                            connection.Open();
+                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM clients WHERE name = \"{name}\"", connection);
+                            command.ExecuteNonQuery();
+                            refresh_table();
+                            MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
-
-                        name = null;
                     }
+                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+
+
+                    name = null;
                 }
-            
+            }
+
         }
 
         private void editButton_Click(object sender, RoutedEventArgs e)
@@ -229,23 +221,23 @@ namespace Hotel
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (name != null )
+            if (name != null)
             {
                 if (type != null)
                 {
                     try
                     {
-                    using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
-                    {
-                        connection.Open();
-                        SQLiteCommand command = new SQLiteCommand("UPDATE clients SET order_code = " + id1 + ", type_food = " + type + " WHERE name = @name", connection);
-                        command.Parameters.AddWithValue("@name", name);
-                        command.ExecuteNonQuery();
-                    }
+                        using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
+                        {
+                            connection.Open();
+                            SQLiteCommand command = new SQLiteCommand("UPDATE clients SET order_code = " + id1 + ", type_food = " + type + " WHERE name = @name", connection);
+                            command.Parameters.AddWithValue("@name", name);
+                            command.ExecuteNonQuery();
+                        }
 
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-                    
+
                     //refresh_table1("select name AS ФИО, type_of_foods.type AS 'Тип питания' from clients,  type_of_foods where type_of_foods.id = clients.type_food AND order_code = "+id1);
                     Close();
 

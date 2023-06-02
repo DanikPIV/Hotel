@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SQLite;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Hotel
 {
@@ -79,14 +69,14 @@ namespace Hotel
                 MessageBox.Show("Заполните все обязательные поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else if (Convert.ToDateTime(date_picker1.Text) >= Convert.ToDateTime(date_picker2.Text))
-                {
-                    MessageBox.Show("Не корректные даты!");
-                    date_picker1.Text = "";
-                    date_picker2.Text = "";
-                }
+            {
+                MessageBox.Show("Не корректные даты!");
+                date_picker1.Text = "";
+                date_picker2.Text = "";
+            }
             else
             {
-            
+
                 try
                 {
                     sqlConnection.Open();
@@ -99,14 +89,14 @@ namespace Hotel
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
-                refresh_table();
+                    refresh_table();
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
             }
         }
 
-        
+
 
 
 
@@ -129,7 +119,7 @@ namespace Hotel
                             refresh_table();
                             MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                    id = null;
+                        id = null;
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -171,7 +161,7 @@ namespace Hotel
                                 MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
-                        id = null;
+                            id = null;
                         }
                         catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -199,7 +189,7 @@ namespace Hotel
 
         private void CheckBox1_Checked(object sender, RoutedEventArgs e)
         {
-           
+
             query = "SELECT CAST(price_list.id AS CHAR(15)) AS \"Шифр\", room_types.type AS \"Тип\", date_from AS \"Действует с\", date_to AS \"по\", holyday AS \"выходной\", valid AS \"Действует\", price AS \"Цена в сутки\", reservation_price AS \"Цена брони в сутки\" FROM price_list, room_types where price_list.room_type = room_types.id AND valid = 'Да'";
             refresh_table();
 
@@ -213,7 +203,7 @@ namespace Hotel
 
         private void date_picker_LostFocus(object sender, RoutedEventArgs e)
         {
-           
+
         }
     }
 }

@@ -8,7 +8,7 @@
         xmlns:SQLite="clr-namespace:System.Data.SQLite;assembly=System.Data.SQLite"         
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
         mc:Ignorable="d"
-        Title="Сдача / бронирование номеров" Height="419" Width="1190" MinHeight="650" MinWidth="1190">
+        Title="Сдача / бронирование номеров" Height="419" Width="1190" MinHeight="650" MinWidth="1190" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -57,8 +57,8 @@
             </DataGrid.Effect>
         </DataGrid>
         <StackPanel HorizontalAlignment="Left" Margin="10,5,10,10" MinWidth="300" Width="300" Grid.Row="1">
-                <Label Content="Дата" Margin="1"/>
-                <DatePicker x:Name="date_picker1" materialDesign:HintAssist.Hint="с*" Margin="5 -5 5 5" Style="{StaticResource MaterialDesignFloatingHintDatePicker}"/>
+            <Label Content="Дата" Margin="1"/>
+            <DatePicker x:Name="date_picker1" materialDesign:HintAssist.Hint="с*" Margin="5 -5 5 5" Style="{StaticResource MaterialDesignFloatingHintDatePicker}"/>
             <DatePicker x:Name="date_picker2" materialDesign:HintAssist.Hint="по*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintDatePicker}"/>
             <ComboBox x:Name="comboBox_res" materialDesign:HintAssist.Hint="Бронь*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}">
                 <ComboBoxItem Content="Сдача"/>
@@ -77,6 +77,6 @@
             <Button x:Name="addButton1" Content="+" Margin="10" Click="addButton1_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignFloatingActionMiniButton}"/>
         </StackPanel>
         <Button x:Name="back" Content="Назад" Margin="5" Grid.Column="1"  Grid.Row="1" Click="back_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-        <Button x:Name="transaction_btn" Content="Провести по счету клиента" HorizontalAlignment="Right" Margin="0,0,270,10" Grid.Row="1" VerticalAlignment="Bottom" Width="222" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Click="transaction_btn_Click"/>
+        <Button x:Name="transaction_btn" Content="Провести по счету клиента" HorizontalAlignment="Right" Margin="0,0,10,171" Grid.Row="1" VerticalAlignment="Bottom" Width="222" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Click="transaction_btn_Click" Grid.Column="1"/>
     </Grid>
 </Window>

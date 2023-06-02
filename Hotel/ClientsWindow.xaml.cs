@@ -1,14 +1,9 @@
-﻿using MaterialDesignThemes.Wpf.Internal;
-using System;
+﻿using System;
 using System.Data;
 using System.Data.SQLite;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Xml.Linq;
 
 namespace Hotel
 {
@@ -81,7 +76,7 @@ namespace Hotel
                 {
                     sqlConnection.Open();
 
-                    string sql = "INSERT INTO clients (name, status  pasport, gender, birthday, address, description) " +
+                    string sql = "INSERT INTO clients (name, status,  pasport, gender, birthday, address, description) " +
                                     "VALUES (\"" + txt_name.Text + "\", (select id from status_clients where status like \"%" + comboBox_status.Text + "%\"), \"" + txt_pasport.Text + "\", \"" + comboBox_gender.Text + "\", \"" + data_picker_birthday.Text + "\", \"" + txt_address.Text + "\", \"" + txt_description.Text + "\")";
 
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
@@ -89,10 +84,10 @@ namespace Hotel
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
+                    refresh_table();
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-                
-                refresh_table();
+
             }
         }
 
@@ -108,34 +103,35 @@ namespace Hotel
 
         }
 
-        
+
 
         private void delButton_Click(object sender, RoutedEventArgs e)
         {
-            
-                if (name == null)
-                    MessageBox.Show("Выберите запись", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                else
+
+            if (name == null)
+                MessageBox.Show("Выберите запись", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            else
+            {
+                if (MessageBox.Show($"Удалить запись {name}?", "Подтверждение", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 {
-                    if (MessageBox.Show($"Удалить запись {name}?", "Подтверждение", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK){
-                        try
+                    try
+                    {
+                        using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
-                            using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
-                            {
-                                connection.Open();
-                                SQLiteCommand command = new SQLiteCommand($"DELETE FROM clients WHERE name = \"{name}\"", connection);
-                                command.ExecuteNonQuery();
-                                refresh_table();
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                            }
+                            connection.Open();
+                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM clients WHERE name = \"{name}\"", connection);
+                            command.ExecuteNonQuery();
+                            refresh_table();
+                            MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
-
-                        name = null;
+                    name = null;
                     }
+                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+
+
                 }
-            
+            }
+
         }
 
         private void editButton_Click(object sender, RoutedEventArgs e)
@@ -165,10 +161,10 @@ namespace Hotel
                                 MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
+                        name = null;
                         }
                         catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
-                        name = null;
                     }
                 }
             }

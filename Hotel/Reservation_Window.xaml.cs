@@ -1,19 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SQLite;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using MaterialDesignThemes.Wpf;
 
 namespace Hotel
 {
@@ -22,9 +11,9 @@ namespace Hotel
     /// </summary>
     public partial class Reservation_Window : Window
     {
-        
+
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=hotel.db");
-        string query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', reservation.date_from AS 'Занят с', reservation.date_to AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых', CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) AS 'Итого' FROM rooms, reservation, room_types";
+        string query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', reservation.date_from AS 'Занят с', reservation.date_to AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых', CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) + CAST( doplata AS INTEGER) AS 'Итого' FROM reservation, rooms where room = rooms.id";
         string id = null;
         string name = null;
         string sum = null;
@@ -221,18 +210,18 @@ namespace Hotel
 
         private void button_filter_Click(object sender, RoutedEventArgs e)
         {
-            query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', reservation.date_from AS 'Занят с', reservation.date_to AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых', CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) AS 'Итого' FROM rooms, reservation, room_types";
+            query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', reservation.date_from AS 'Занят с', reservation.date_to AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых', CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) AS 'Итого' FROM reservation, room_types";
             if (CheckBox1.IsChecked == true && comboBox_num_f.Text.Length != 0)
             {
-                query = query + " WHERE [Номер] = '"+ comboBox_num_f.Text +"'";
-                
+                query = query + " WHERE [Номер] = '" + comboBox_num_f.Text + "'";
+
                 if (CheckBox2.IsChecked == true && date_picker_f.Text.Length != 0)
                 {
-                    query = query + " AND  strftime('%s', substr(reservation.date_from, 7, 4) || '-' || substr(reservation.date_from, 4, 2) || '-' || substr(reservation.date_from, 1, 2)) <= strftime('%s',  substr('"+ date_picker_f.Text +"', 7, 4) || '-' || substr('"+ date_picker_f.Text +"', 4, 2) || '-' || substr('"+ date_picker_f.Text +"', 1, 2)) AND strftime('%s', substr(reservation.date_to, 7, 4) || '-' || substr(reservation.date_to, 4, 2) || '-' || substr(reservation.date_to, 1, 2)) >= strftime('%s', substr('"+ date_picker_f.Text +"', 7, 4) || '-' || substr('"+ date_picker_f.Text +"', 4, 2) || '-' || substr('"+ date_picker_f.Text +"', 1, 2))";
-                    
-                    if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0) 
+                    query = query + " AND  strftime('%s', substr(reservation.date_from, 7, 4) || '-' || substr(reservation.date_from, 4, 2) || '-' || substr(reservation.date_from, 1, 2)) <= strftime('%s',  substr('" + date_picker_f.Text + "', 7, 4) || '-' || substr('" + date_picker_f.Text + "', 4, 2) || '-' || substr('" + date_picker_f.Text + "', 1, 2)) AND strftime('%s', substr(reservation.date_to, 7, 4) || '-' || substr(reservation.date_to, 4, 2) || '-' || substr(reservation.date_to, 1, 2)) >= strftime('%s', substr('" + date_picker_f.Text + "', 7, 4) || '-' || substr('" + date_picker_f.Text + "', 4, 2) || '-' || substr('" + date_picker_f.Text + "', 1, 2))";
+
+                    if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0)
                     {
-                        query = query + " AND  reserv = '" + comboBox_res_f.Text + "'";                        
+                        query = query + " AND  reserv = '" + comboBox_res_f.Text + "'";
                     }
                 }
                 else if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0)
@@ -253,7 +242,7 @@ namespace Hotel
             else if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0)
             {
                 query = query + " WHERE reserv = '" + comboBox_res_f.Text + "'";
-                
+
             }
             refresh_table();
         }
@@ -270,8 +259,8 @@ namespace Hotel
             {
                 MessageBox.Show("Выберите заказ!");
             }
-            
-            
+
+
         }
 
         private void delButton1_Click(object sender, RoutedEventArgs e)
@@ -333,14 +322,14 @@ namespace Hotel
         {
             if (id != null && name != null)
             {
-                if(MessageBox.Show("Провести по счету клиента " + name + " расход в сумме " + sum + "?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MessageBox.Show("Провести по счету клиента " + name + " расход в сумме " + sum + "?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     try
                     {
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"INSERT INTO transactions (personal_account, date_transaction, sum, description) VALUES( (select id from clients where name = '" +name+"'), '"+ DateTime.Now.ToShortDateString() + "', CAST('-"+sum+"' AS REAL),   'Оплата за номер №"+num+" ("+res+") c "+date1+" по "+date2+"')", connection);
+                            SQLiteCommand command = new SQLiteCommand($"INSERT INTO transactions (personal_account, date_transaction, sum, description, complite) VALUES( (select id from clients where name = '" + name + "'), '" + DateTime.Now.ToShortDateString() + "', CAST('-" + sum + "' AS REAL),   'Оплата за номер №" + num + " (" + res + ") c " + date1 + " по " + date2 + "', 'Да')", connection);
                             command.ExecuteNonQuery();
                             MessageBox.Show("Транзакция проведена", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                             dataGrid1.ItemsSource = string.Empty;

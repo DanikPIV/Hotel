@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Hotel
 {
@@ -33,13 +23,13 @@ namespace Hotel
         }
         public void refresh_table()
         {
-            using(SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db"))
+            using (SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db"))
             {
-            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-            DataTable dataTable = new DataTable();
-            dataAdapter.Fill(dataTable);
-            dataGrid.ItemsSource = dataTable.DefaultView;
-            ClearTxt();
+                SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
+                DataTable dataTable = new DataTable();
+                dataAdapter.Fill(dataTable);
+                dataGrid.ItemsSource = dataTable.DefaultView;
+                ClearTxt();
             }
         }
 
@@ -126,13 +116,14 @@ namespace Hotel
                     MessageBox.Show("Выберите запись", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 else
                 {
-                    if (MessageBox.Show($"Редактировать запись {type}?", "Подтверждение", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK){
+                    if (MessageBox.Show($"Редактировать запись {type}?", "Подтверждение", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                    {
                         try
                         {
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE room_types SET type = \"" + txt_type.Text + "\", count = \"" +txt_count.Text + "\", description = \"" +txt_description.Text + "\" WHERE type = \"" + type + "\"", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE room_types SET type = \"" + txt_type.Text + "\", count = \"" + txt_count.Text + "\", description = \"" + txt_description.Text + "\" WHERE type = \"" + type + "\"", connection);
                                 command.Parameters.AddWithValue("@type", type);
                                 command.ExecuteNonQuery();
 

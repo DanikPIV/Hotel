@@ -26,10 +26,10 @@
                 <MenuItem Header="_Прайс-лист на номера" Click="Button_price_list_Click"/>
                 <MenuItem Header="_Номера" Click="MenuItem_Rooms_Click"/>
                 <MenuItem Header="_Контроль службы горничных" />
-                <MenuItem Header="_Сдача / бронирование номеров" />
+                <MenuItem Header="_Сдача / бронирование номеров" Click="Button_reservation_Click"/>
                 <MenuItem Header="_Услуги клиентам" />
-                <MenuItem Header="_Лицевые счета клиентов" />
-                <MenuItem Header="_Шахматка" />
+                <MenuItem Header="_Лицевые счета клиентов" Click="Button_personal_account_Click"/>
+                <MenuItem Header="_Шахматка" Click="Button_chess_Click"/>
             </MenuItem>
             <MenuItem Header="_Печать" Height="25">
                 <MenuItem Header="_Должники" />

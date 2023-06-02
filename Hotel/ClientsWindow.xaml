@@ -8,7 +8,7 @@
         
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
         mc:Ignorable="d"
-        Title="Клиенты" Height="590" Width="1038" MinHeight="590" MinWidth="1050">
+        Title="Клиенты" Height="590" Width="1038" MinHeight="590" MinWidth="1050" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>

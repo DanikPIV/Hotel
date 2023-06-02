@@ -1,5 +1,4 @@
-﻿using Hotel;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 
 namespace Hotel
 {

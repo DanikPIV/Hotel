@@ -1,21 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SQLite;
+using System.Drawing;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.IO;
-using System.Drawing;
 
 namespace Hotel
 {
@@ -76,25 +67,25 @@ namespace Hotel
 
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
-            if (txt_num.Text.Length == 0 || comboBox_type.SelectedIndex == -1 || txt_floor.Text.Length == 0  || txt_telephone.Text.Length == 0 )
+            if (txt_num.Text.Length == 0 || comboBox_type.SelectedIndex == -1 || txt_floor.Text.Length == 0 || txt_telephone.Text.Length == 0)
             {
                 MessageBox.Show("Заполните все обязательные поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
                 byte[] imageBytes = null;
-                if (ImageControl.Source != null) 
-                { 
-                BitmapSource bitmapSource = (BitmapSource)ImageControl.Source;
-
-                
-                using (MemoryStream ms = new MemoryStream())
+                if (ImageControl.Source != null)
                 {
-                    BitmapEncoder encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-                    encoder.Save(ms);
-                    imageBytes = ms.ToArray();
-                }
+                    BitmapSource bitmapSource = (BitmapSource)ImageControl.Source;
+
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        BitmapEncoder encoder = new PngBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                        encoder.Save(ms);
+                        imageBytes = ms.ToArray();
+                    }
                 }
                 try
                 {
@@ -134,7 +125,7 @@ namespace Hotel
                             refresh_table();
                             MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                    num = null;
+                        num = null;
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -146,7 +137,7 @@ namespace Hotel
 
         private void editButton_Click(object sender, RoutedEventArgs e)
         {
-            if (txt_num.Text.Length == 0 || comboBox_type.SelectedIndex == -1 || txt_floor.Text.Length == 0 || txt_telephone.Text.Length == 0 )
+            if (txt_num.Text.Length == 0 || comboBox_type.SelectedIndex == -1 || txt_floor.Text.Length == 0 || txt_telephone.Text.Length == 0)
             {
                 MessageBox.Show("Заполните все обязательные поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -163,27 +154,32 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                // Получаем изображение из элемента управления Image
-                                Bitmap bmp = new Bitmap(ImageControl.Source.ToString());
+                                byte[] imageBytes = null;
+                                if (ImageControl.Source != null)
+                                {
+                                    // Получаем изображение из элемента управления Image
+                                    Bitmap bmp = new Bitmap(ImageControl.Source.ToString());
 
-                                // Создаем MemoryStream
-                                MemoryStream ms = new MemoryStream();
+                                    // Создаем MemoryStream
+                                    MemoryStream ms = new MemoryStream();
 
-                                // Сохраняем изображение в MemoryStream в формате PNG
-                                bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                    // Сохраняем изображение в MemoryStream в формате PNG
+                                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-                                // Получаем массив байтов из MemoryStream
-                                byte[] imageBytes = ms.ToArray();
+                                    // Получаем массив байтов из MemoryStream
+                                    imageBytes = ms.ToArray();
 
-                                // Закрываем MemoryStream
-                                ms.Close();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE clients SET num =\"" + txt_num.Text + "\", floor = \"" + txt_floor.Text + "\", type = (select room_types.id from room_types where room_types.type like \"%" + comboBox_type.Text + "%\"), doplata = \"" + txt_doplata.Text + "\", telephone = \"" + txt_telephone.Text + "\", description = \"" + txt_description.Text + "\", jpg = \"" + imageBytes + "\" WHERE num = @num", connection);
+                                    // Закрываем MemoryStream
+                                    ms.Close();
+                                }
+                                SQLiteCommand command = new SQLiteCommand("UPDATE rooms SET num =\"" + txt_num.Text + "\", floor = \"" + txt_floor.Text + "\", type = (select room_types.id from room_types where room_types.type like \"%" + comboBox_type.Text + "%\"), doplata = \"" + txt_doplata.Text + "\", telephone = \"" + txt_telephone.Text + "\", description = \"" + txt_description.Text + "\", jpg = @jpg WHERE num = @num", connection);
                                 command.Parameters.AddWithValue("@num", num);
+                                command.Parameters.AddWithValue("@jpg", imageBytes);
                                 command.ExecuteNonQuery();
                                 MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
-                        num = null;
+                            num = null;
                         }
                         catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -205,7 +201,7 @@ namespace Hotel
                 txt_description.Text = Convert.ToString(selectedRow["Описание"]);
 
                 num = Convert.ToString(selectedRow["№"]);
-                if (!selectedRow.Row.IsNull("jpg"))
+                if (!selectedRow.Row.IsNull("jpg") )
                 {
                     byte[] imageBytes = (byte[])selectedRow["jpg"];
                     BitmapImage bitmapImage = new BitmapImage();

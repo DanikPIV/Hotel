@@ -125,6 +125,9 @@
       <DependentUpon>MainWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="hotel\User.cs" />
+    <Compile Include="Persolal_Account_Window.xaml.cs">
+      <DependentUpon>Persolal_Account_Window.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Price_List_Window.xaml.cs">
       <DependentUpon>Price_List_Window.xaml</DependentUpon>
     </Compile>
@@ -186,6 +189,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Persolal_Account_Window.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Price_List_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
