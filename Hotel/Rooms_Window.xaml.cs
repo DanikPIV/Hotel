@@ -60,8 +60,6 @@ namespace Hotel
 
         private void back_Click(object sender, RoutedEventArgs e)
         {
-            MainWin mainWin = new MainWin();
-            mainWin.Show();
             Close();
         }
 
@@ -201,7 +199,7 @@ namespace Hotel
                 txt_description.Text = Convert.ToString(selectedRow["Описание"]);
 
                 num = Convert.ToString(selectedRow["№"]);
-                if (!selectedRow.Row.IsNull("jpg") )
+                if (!selectedRow.Row.IsNull("jpg"))
                 {
                     byte[] imageBytes = (byte[])selectedRow["jpg"];
                     BitmapImage bitmapImage = new BitmapImage();

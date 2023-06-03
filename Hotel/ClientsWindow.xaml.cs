@@ -57,8 +57,6 @@ namespace Hotel
 
         private void back_Click(object sender, RoutedEventArgs e)
         {
-            MainWin mainWin = new MainWin();
-            mainWin.Show();
             Close();
         }
 
@@ -124,7 +122,7 @@ namespace Hotel
                             refresh_table();
                             MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                    name = null;
+                        name = null;
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -161,7 +159,7 @@ namespace Hotel
                                 MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
-                        name = null;
+                            name = null;
                         }
                         catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 

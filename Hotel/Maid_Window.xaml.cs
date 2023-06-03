@@ -40,8 +40,6 @@ namespace Hotel
 
         private void back_Click(object sender, RoutedEventArgs e)
         {
-            MainWin mainWin = new MainWin();
-            mainWin.Show();
             Close();
         }
 

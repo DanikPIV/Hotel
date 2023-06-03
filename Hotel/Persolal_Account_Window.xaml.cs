@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -60,8 +58,6 @@ namespace Hotel
 
         private void back_Click(object sender, RoutedEventArgs e)
         {
-            MainWin mainWin = new MainWin();
-            mainWin.Show();
             Close();
         }
 
@@ -72,7 +68,7 @@ namespace Hotel
                 MessageBox.Show("Заполните все обязательные поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else if (Convert.ToDateTime(date_picker_t.Text) >= DateTime.Now) MessageBox.Show("Неверная дата", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            else if (id == null) MessageBox.Show("Выберите клиента!","", MessageBoxButton.OK, MessageBoxImage.Information);
+            else if (id == null) MessageBox.Show("Выберите клиента!", "", MessageBoxButton.OK, MessageBoxImage.Information);
             else
             {
                 try
@@ -101,7 +97,7 @@ namespace Hotel
                 query = "SELECT name AS \"ФИО\", id AS \"Лиц счет\", pasport AS \"Паспорт\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients";
             else
                 query = "SELECT name AS \"ФИО\", id AS \"Лиц счет\", pasport AS \"Паспорт\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients WHERE name Like \"%" + txt_find.Text + "%\"";
-            
+
             sqlConnection.Open();
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
             DataTable dataTable = new DataTable();
@@ -162,7 +158,7 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE transactions SET sum =\"" + txt_sum.Text + "\",  date_transaction = \"" + date_picker_t.Text +"\", description = \"" + txt_description.Text + "\" WHERE id = @id_t", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE transactions SET sum =\"" + txt_sum.Text + "\",  date_transaction = \"" + date_picker_t.Text + "\", description = \"" + txt_description.Text + "\" WHERE id = @id_t", connection);
                                 command.Parameters.AddWithValue("@id_t", id_t);
                                 command.ExecuteNonQuery();
                                 MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -208,8 +204,8 @@ namespace Hotel
                 }
             }
 
-            txt_balance.Text = "Остаток: "+sum.ToString()+" руб.";
-            if(sum > 0)
+            txt_balance.Text = "Остаток: " + sum.ToString() + " руб.";
+            if (sum > 0)
             {
                 txt_balance.Foreground = Brushes.Blue;
             }
@@ -221,20 +217,20 @@ namespace Hotel
         {
             if (id != null)
             {
-                    try
+                try
+                {
+                    using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                     {
-                        using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
-                        {
-                            connection.Open();
-                            SQLiteCommand command = new SQLiteCommand("UPDATE transactions SET complite = 'Да'  WHERE personal_account = @id", connection);
-                            command.Parameters.AddWithValue("@id", id);
-                            command.ExecuteNonQuery();
-                            MessageBox.Show("Записи проведены", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        refresh_table1();
-                        ShowTransactionSum();
+                        connection.Open();
+                        SQLiteCommand command = new SQLiteCommand("UPDATE transactions SET complite = 'Да'  WHERE personal_account = @id", connection);
+                        command.Parameters.AddWithValue("@id", id);
+                        command.ExecuteNonQuery();
+                        MessageBox.Show("Записи проведены", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    refresh_table1();
+                    ShowTransactionSum();
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
             else MessageBox.Show("Выберите клиента");
         }
@@ -248,43 +244,6 @@ namespace Hotel
                 date_picker_t.Text = Convert.ToString(selectedRow["Дата"]);
                 txt_sum.Text = Convert.ToString(selectedRow["Сумма руб"]);
                 txt_description.Text = Convert.ToString(selectedRow["Назначение"]);
-            }
-        }
-
-        public class ValueToBrushConverter : IMultiValueConverter
-        {
-            public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-            {
-                if (values.Length < 2) return null;
-
-                if (values[0] == null || values[0] == DependencyProperty.UnsetValue) return null;
-                decimal amount = 0;
-                try
-                {
-                    amount = System.Convert.ToDecimal(values[0], CultureInfo.InvariantCulture);
-                }
-                catch (FormatException)
-                {
-                    return null;
-                }
-
-                if (amount == 0)
-                {
-                    return Brushes.Black;
-                }
-                else if (amount < 0)
-                {
-                    return Brushes.Red;
-                }
-                else
-                {
-                    return Brushes.Blue;
-                }
-            }
-
-            public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-            {
-                throw new NotSupportedException();
             }
         }
 

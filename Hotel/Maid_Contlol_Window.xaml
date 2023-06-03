@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel"
         xmlns:SQLite="clr-namespace:System.Data.SQLite;assembly=System.Data.SQLite" 
-        
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
         mc:Ignorable="d"
-        Title="Прайс-лист на номера" Height="590" Width="1038" MinHeight="590" MinWidth="1050" WindowStartupLocation="CenterScreen">
+        Title="Прайс-лист на номера" Height="590" Width="964" MinHeight="590" MinWidth="1050" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
@@ -18,11 +18,10 @@
             <ColumnDefinition Width="311*"/>
             <ColumnDefinition Width="330"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <GroupBox Header="Отбор" Margin="5,5,5,5">
-                <CheckBox Content="Действующие" Checked="CheckBox1_Checked" Unchecked ="CheckBox1_UnChecked"/>
-            </GroupBox>
-
+        <GroupBox Header="Отбор" Margin="5,5,5,5" HorizontalAlignment="Left">
+            <CheckBox Content="Не выполнено" Checked="CheckBox1_Checked" Unchecked ="CheckBox1_UnChecked" HorizontalAlignment="Left"/>
+        </GroupBox>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="delButton" Content="Удалить" Margin="40 10 10 10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="delButton_Click"/>
             <Button x:Name="editButton" Content="Редактировать" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="editButton_Click"/>
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
@@ -33,36 +32,33 @@
             <DataGrid.RowStyle>
                 <Style TargetType="{x:Type DataGridRow}">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Действует}" Value="Нет">
-                            <Setter Property="Background" Value="LightGray" />
+                        <DataTrigger Binding="{Binding Выполнено}" Value="Нет">
+                            <Setter Property="Background" Value="Yellow" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Действует}" Value="Да">
+                        <DataTrigger Binding="{Binding Выполнено}" Value="Да">
                             <Setter Property="Background" Value="White" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Effect>
-                <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+                <DropShadowEffect BlurRadius="20" Color="LightBlue" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
         <StackPanel HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
-            <ComboBox x:Name="comboBox_type" materialDesign:HintAssist.Hint="Тип*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectedIndex="0"/>
-            <Label Content="Действует " Margin="0,10,0,-5"/>
-            <DatePicker x:Name="date_picker1" materialDesign:HintAssist.Hint="с*" Margin="5" Style="{StaticResource MaterialDesignDatePicker}" LostFocus="date_picker_LostFocus" />
-            <DatePicker x:Name="date_picker2" materialDesign:HintAssist.Hint="по*" Margin="5" Style="{StaticResource MaterialDesignDatePicker}" LostFocus="date_picker_LostFocus"/>
-            <ComboBox x:Name="comboBox_holiday" materialDesign:HintAssist.Hint="Выходной*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+
+            <DatePicker x:Name="date_picker1" materialDesign:HintAssist.Hint="Дата" Margin="5" Style="{StaticResource MaterialDesignDatePicker}" LostFocus="date_picker_LostFocus" />
+            <ComboBox x:Name="comboBox_num" materialDesign:HintAssist.Hint="Номер*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectedIndex="0"/>
+            <ComboBox x:Name="comboBox_service" materialDesign:HintAssist.Hint="Вид работ*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectedIndex="0"/>
+            <ComboBox x:Name="comboBox_name" materialDesign:HintAssist.Hint="ФИО ответственного*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+            <ComboBox x:Name="comboBox_complite" materialDesign:HintAssist.Hint="Выполнено" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectedIndex="1">
                 <ComboBoxItem Content="Да"/>
                 <ComboBoxItem Content="Нет"/>
             </ComboBox>
-            <ComboBox x:Name="comboBox_valid" materialDesign:HintAssist.Hint="Действует*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}">
-                <ComboBoxItem Content="Да"/>
-                <ComboBoxItem Content="Нет"/>
-            </ComboBox>
-            <TextBox x:Name="txt_price" materialDesign:HintAssist.Hint="Цена/сут*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-            <TextBox x:Name="txt_reservation_price" materialDesign:HintAssist.Hint="Цена брони/сут*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1" Height="32" Width="75">
+        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">
+            <Button x:Name="maids_service_btn" Content="Услуги" Margin="10" VerticalAlignment="Bottom" Click="maids_service_btn_Click"/>
+            <Button x:Name="maids_btn" Content="Персонал" Margin="10" VerticalAlignment="Bottom" Click="maids_btn_Click"/>
             <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
         </StackPanel>
     </Grid>

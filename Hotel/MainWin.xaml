@@ -6,10 +6,11 @@
         xmlns:local="clr-namespace:Hotel"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
         mc:Ignorable="d"
-        Title="АИС Администрирование гостиницы" Height="450" Width="800" MinHeight="380" WindowStartupLocation="CenterScreen">
+        Title="АИС Администрирование гостиницы" Height="468" Width="800" MinHeight="380" WindowStartupLocation="CenterScreen" Cursor="">
     <Grid>
-        <Menu Background="#33908E8E"  VerticalAlignment="Top" >            
-            <MenuItem Header="_Файл" Height="25">                
+        <Menu Background="#33908E8E"  VerticalAlignment="Top" Grid.ColumnSpan="2" >
+            <MenuItem Header="_Файл" Height="25">
+                <Separator Visibility="Hidden"/>
                 <MenuItem Header="_Выход" />
             </MenuItem>
             <MenuItem Header="_Справочники" Height="25">
@@ -25,23 +26,23 @@
             <MenuItem Header="_Работа" Height="25">
                 <MenuItem Header="_Прайс-лист на номера" Click="Button_price_list_Click"/>
                 <MenuItem Header="_Номера" Click="MenuItem_Rooms_Click"/>
-                <MenuItem Header="_Контроль службы горничных" />
+                <MenuItem Header="_Контроль службы горничных" Click="Button_maids_Click" />
                 <MenuItem Header="_Сдача / бронирование номеров" Click="Button_reservation_Click"/>
-                <MenuItem Header="_Услуги клиентам" />
+                <MenuItem Header="_Услуги клиентам" Click="Button_servise_Click"/>
                 <MenuItem Header="_Лицевые счета клиентов" Click="Button_personal_account_Click"/>
                 <MenuItem Header="_Шахматка" Click="Button_chess_Click"/>
             </MenuItem>
             <MenuItem Header="_Печать" Height="25">
                 <MenuItem Header="_Должники" />
                 <MenuItem Header="_Свободные номера" />
-                <MenuItem Header="_Статистика" />
+                <MenuItem Header="_Статистика" IsEnabled="False"/>
             </MenuItem>
         </Menu>
-        <StackPanel Margin="0,20,0,0" HorizontalAlignment="Left" Width="294" VerticalAlignment="Center" >            
+        <StackPanel Margin="0,30,0,0" HorizontalAlignment="Left" Width="294" VerticalAlignment="Top" Grid.ColumnSpan="2" >
             <Button Click="Button_reservation_Click" Height="50" Margin="5" Content="Сдача / бронироавание номеров"/>
             <Button Click="Button_chess_Click" Height="50" Margin="5" Content="Шахматка"/>
             <Button Click="Button_personal_account_Click" Height="50" Margin="5" Content="Лицевые счета клиентов"/>
-            <Button Click="Button_maids_Click" Height="50" Margin="5" Content="Контроль службы грничных"/>
+            <Button Click="Button_maids_Click" Height="50" Margin="5" Content="Контроль службы горничных"/>
             <Button Click="Button_price_list_Click" Height="50" Margin="5" Content="Прайс-лист на номера"/>
             <Button Click="Button_servise_Click" Height="50" Margin="5" Content="Услуги клиентам"/>
         </StackPanel>

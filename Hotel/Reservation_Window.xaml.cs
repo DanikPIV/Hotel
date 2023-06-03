@@ -70,8 +70,6 @@ namespace Hotel
 
         private void back_Click(object sender, RoutedEventArgs e)
         {
-            MainWin mainWin = new MainWin();
-            mainWin.Show();
             Close();
         }
 
@@ -339,7 +337,7 @@ namespace Hotel
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
                 }
             }
-            else MessageBox.Show("С начала выберите клиента");
+            else MessageBox.Show("Сначала выберите клиента");
         }
     }
 }
