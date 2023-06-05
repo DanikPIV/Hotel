@@ -7,17 +7,17 @@
         xmlns:SQLite="clr-namespace:System.Data.SQLite;assembly=System.Data.SQLite" 
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
         mc:Ignorable="d"
-        Title="Cтатусы клиентов" Height="450" Width="760" MinHeight="300" MinWidth="760"  WindowStartupLocation="CenterScreen">
+        Title="Виды работ в номерах" Height="447" Width="771" MinHeight="360" MinWidth="631"  WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
             <RowDefinition Height="113*"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="311*"/>
-            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="270"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center">
 
 
             <Button x:Name="delButton" Content="Удалить" Margin="20,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="delButton_Click"/>
@@ -25,12 +25,12 @@
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
         </StackPanel>
-        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="0" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
             <DataGrid.Effect>
                 <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
-        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
+        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="250" Width="250" Grid.Row="0">
             <TextBox x:Name="txt_servise" materialDesign:HintAssist.Hint="Вид услуги*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">

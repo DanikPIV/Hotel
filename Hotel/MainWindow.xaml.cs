@@ -24,6 +24,7 @@ namespace Hotel
         private void Button_Reg_Click(object sender, RoutedEventArgs e)
         {
 
+            string root = root1.Text.Trim();
             string login = Login.Text.Trim();
             string pass = Password.Password.Trim();
             string pass2 = Password_2.Password.Trim();
@@ -45,10 +46,11 @@ namespace Hotel
 
                     // Выводим зашифрованный пароль
                     pass = hashedString;
-                    User user = new User(login, pass);
+                    User user = new User(root, login, pass);
                     appContext.Users.Add(user);
                     appContext.SaveChanges();
                     MessageBox.Show("Пользователь добавлен");
+                    Close();
                 }
             }
             else { MessageBox.Show("Выполните все условия"); }

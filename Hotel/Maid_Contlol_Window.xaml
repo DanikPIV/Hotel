@@ -8,27 +8,27 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
         mc:Ignorable="d"
-        Title="Прайс-лист на номера" Height="590" Width="964" MinHeight="590" MinWidth="1050" WindowStartupLocation="CenterScreen">
+        Title="Контроль службы горничных" Height="590" Width="964" MinHeight="590" MinWidth="1050" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
             <RowDefinition/>
+            <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="311*"/>
             <ColumnDefinition Width="330"/>
         </Grid.ColumnDefinitions>
-        <GroupBox Header="Отбор" Margin="5,5,5,5" HorizontalAlignment="Left">
-            <CheckBox Content="Не выполнено" Checked="CheckBox1_Checked" Unchecked ="CheckBox1_UnChecked" HorizontalAlignment="Left"/>
+        <GroupBox Header="Отбор" Margin="14,5,5,5" HorizontalAlignment="Left" Padding="5,5,5,3" VerticalAlignment="Center" Grid.Row="1">
+            <CheckBox Content="Не выполнено" Checked="CheckBox1_Checked" Unchecked ="CheckBox1_UnChecked" HorizontalAlignment="Left" Padding="4,2,0,0" Height="16" VerticalAlignment="Center"/>
         </GroupBox>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Center">
             <Button x:Name="delButton" Content="Удалить" Margin="40 10 10 10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="delButton_Click"/>
             <Button x:Name="editButton" Content="Редактировать" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="editButton_Click"/>
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <Button x:Name="print" Content="Печать" Margin="10" VerticalAlignment="Bottom"/>
+            <Button x:Name="print" Content="Печать" Margin="10" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignOutlinedButton}"/>
 
         </StackPanel>
-        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="0" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
             <DataGrid.RowStyle>
                 <Style TargetType="{x:Type DataGridRow}">
                     <Style.Triggers>
@@ -45,7 +45,7 @@
                 <DropShadowEffect BlurRadius="20" Color="LightBlue" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
-        <StackPanel HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
+        <StackPanel HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="0" VerticalAlignment="Top">
 
             <DatePicker x:Name="date_picker1" materialDesign:HintAssist.Hint="Дата" Margin="5" Style="{StaticResource MaterialDesignDatePicker}" LostFocus="date_picker_LostFocus" />
             <ComboBox x:Name="comboBox_num" materialDesign:HintAssist.Hint="Номер*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectedIndex="0"/>
@@ -57,8 +57,8 @@
             </ComboBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">
-            <Button x:Name="maids_service_btn" Content="Услуги" Margin="10" VerticalAlignment="Bottom" Click="maids_service_btn_Click"/>
-            <Button x:Name="maids_btn" Content="Персонал" Margin="10" VerticalAlignment="Bottom" Click="maids_btn_Click"/>
+            <Button x:Name="maids_service_btn" Content="Услуги" Margin="10" VerticalAlignment="Bottom" Click="maids_service_btn_Click" Background="#FF0800FF"/>
+            <Button x:Name="maids_btn" Content="Персонал" Margin="10" VerticalAlignment="Bottom" Click="maids_btn_Click" Background="#FF0800FF"/>
             <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
         </StackPanel>
     </Grid>

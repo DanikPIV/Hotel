@@ -10,32 +10,32 @@
         Title="Типы питания" Height="450" Width="839" MinHeight="450" MinWidth="839" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="113*"/>
+            <RowDefinition/>
+            <RowDefinition Height="63"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="311*"/>
             <ColumnDefinition Width="330"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Height="63" HorizontalAlignment="Left" VerticalAlignment="Center" Width="357" Grid.Row="1" Margin="152,0,0,0">
 
 
-            <Button x:Name="delButton" Content="Удалить" Margin="20,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="delButton_Click"/>
-            <Button x:Name="editButton" Content="Редактировать" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="editButton_Click"/>
-            <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            <Button x:Name="delButton" Content="Удалить" Margin="13,5,5,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="delButton_Click"/>
+            <Button x:Name="editButton" Content="Редактировать" Margin="10,5,5,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="editButton_Click"/>
+            <Button x:Name="addButton" Content="Добавить" Margin="10,5,5,10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
         </StackPanel>
-        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+        <DataGrid x:Name="dataGrid" Margin="10,10,10,10" AutoGenerateColumns="True"  IsReadOnly="True" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
             <DataGrid.Effect>
                 <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
-        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
+        <StackPanel  HorizontalAlignment="Center" Grid.Column="1" MinWidth="300" VerticalAlignment="Top" Margin="0,20,0,0">
             <TextBox x:Name="txt_type" materialDesign:HintAssist.Hint="Тип питания*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <TextBox x:Name="txt_description" materialDesign:HintAssist.Hint="Описание" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">
-            <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="1"  Grid.Row="1" Height="32" Width="75" Margin="0,0,10,0">
+            <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click" VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>

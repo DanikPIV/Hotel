@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,7 +15,7 @@ namespace Hotel
     public partial class ClientsWindow : Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
-        string query = "SELECT name AS \"ФИО\", status_clients.status AS \"Статус\", pasport AS \"Паспорт\", gender AS \"Пол\", birthday AS \"Дата рождения\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients, status_clients where status_clients.id = clients.status";
+        string query = "SELECT name AS 'ФИО', status_clients.status AS 'Статус', pasport AS 'Паспорт', gender AS 'Пол', strftime('%d.%m.%Y', birthday) AS 'Дата рождения', address AS 'Адрес', clients.description AS 'Описание' FROM clients, status_clients where status_clients.id = clients.status";
         string name = null;
         public ClientsWindow()
         {
@@ -35,13 +37,17 @@ namespace Hotel
         }
         public void refresh_table()
         {
-            sqlConnection.Open();
-            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-            DataTable dataTable = new DataTable();
-            dataAdapter.Fill(dataTable);
-            dataGrid.ItemsSource = dataTable.DefaultView;
-            ClearTxt();
-            sqlConnection.Close();
+            try
+            {
+                sqlConnection.Open();
+                SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
+                DataTable dataTable = new DataTable();
+                dataAdapter.Fill(dataTable);
+                dataGrid.ItemsSource = dataTable.DefaultView;
+                ClearTxt();   
+                sqlConnection.Close();            
+            }
+            catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message);  sqlConnection.Close();}
         }
 
         public void ClearTxt()
@@ -75,16 +81,24 @@ namespace Hotel
                     sqlConnection.Open();
 
                     string sql = "INSERT INTO clients (name, status,  pasport, gender, birthday, address, description) " +
-                                    "VALUES (\"" + txt_name.Text + "\", (select id from status_clients where status like \"%" + comboBox_status.Text + "%\"), \"" + txt_pasport.Text + "\", \"" + comboBox_gender.Text + "\", \"" + data_picker_birthday.Text + "\", \"" + txt_address.Text + "\", \"" + txt_description.Text + "\")";
+                                    "VALUES (@name, (select id from status_clients where status like '%'||@status||'%'), @pasport, @gender, @birthday, @address, @description)";
 
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
-
+                    command.Parameters.AddWithValue("@name", txt_name.Text);
+                    command.Parameters.AddWithValue("@status", comboBox_status.Text);
+                    command.Parameters.AddWithValue("@pasport", txt_pasport.Text);
+                    command.Parameters.AddWithValue("@gender", comboBox_gender.Text);
+                    DateTime date = DateTime.ParseExact(data_picker_birthday.Text, "dd.MM.yyyy", CultureInfo.InvariantCulture);
+                    string newDateStr = date.ToString("yyyy-MM-dd");
+                    command.Parameters.AddWithValue("@birthday", newDateStr);
+                    command.Parameters.AddWithValue("@address", txt_address.Text);
+                    command.Parameters.AddWithValue("@description", txt_description.Text);
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
                     refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
             }
         }
@@ -94,10 +108,18 @@ namespace Hotel
         private void txt_find_KeyUp(object sender, KeyEventArgs e)
         {
             if (txt_find.Text == "")
-                query = "SELECT  name AS \"ФИО\", status_clients.status AS \"Статус\", pasport AS \"Паспорт\", gender AS \"Пол\", birthday AS \"Дата рождения\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients, status_clients where status_clients.id = clients.status";
+                query = "SELECT  name AS 'ФИО', status_clients.status AS 'Статус', pasport AS 'Паспорт', gender AS 'Пол', strftime('%d.%m.%Y', birthday) AS 'Дата рождения', address AS 'Адрес', clients.description AS 'Описание' FROM clients, status_clients where status_clients.id = clients.status";
             else
-                query = "SELECT  name AS \"ФИО\", status_clients.status AS \"Статус\", pasport AS \"Паспорт\", gender AS \"Пол\", birthday AS \"Дата рождения\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients, status_clients where status_clients.id = clients.status AND name Like \"%" + txt_find.Text + "%\"";
-            refresh_table();
+                query = "SELECT  name AS 'ФИО', status_clients.status AS 'Статус', pasport AS 'Паспорт', gender AS 'Пол', strftime('%d.%m.%Y', birthday) AS 'Дата рождения', address AS 'Адрес', clients.description AS 'Описание' FROM clients, status_clients where status_clients.id = clients.status AND name Like '%'||@find||'%'";
+            sqlConnection.Open();
+            SQLiteCommand command = new SQLiteCommand(query, sqlConnection);
+            command.Parameters.AddWithValue("@find", txt_find.Text);
+            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter();
+            dataAdapter.SelectCommand = command;
+            DataTable dataTable = new DataTable();
+            dataAdapter.Fill(dataTable);
+            dataGrid.ItemsSource = dataTable.DefaultView;
+            sqlConnection.Close();
 
         }
 
@@ -117,14 +139,13 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM clients WHERE name = \"{name}\"", connection);
+                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM clients WHERE name = '{name}'", connection);
                             command.ExecuteNonQuery();
                             refresh_table();
-                            MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         name = null;
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
 
                 }
@@ -153,15 +174,23 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE clients SET name =\"" + txt_name.Text + "\", status =  (select id from status_clients where status like \"%" + comboBox_status.Text + "%\"), pasport = \"" + txt_pasport.Text + "\", gender = \"" + comboBox_gender.Text + "\", birthday = \"" + data_picker_birthday.Text + "\", address = \"" + txt_address.Text + "\", description = \"" + txt_description.Text + "\" WHERE name = @name", connection);
-                                command.Parameters.AddWithValue("@name", name);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE clients SET name = @name, status =  (select id from status_clients where status like '%'||@status||'%'), pasport = @pasport, gender = @gender, birthday = @birthday, address = @address, description = @description WHERE name = @name1", connection);
+                                command.Parameters.AddWithValue("@name1", name);
+                                command.Parameters.AddWithValue("@name", txt_name.Text);
+                                command.Parameters.AddWithValue("@status", comboBox_status.Text);
+                                command.Parameters.AddWithValue("@pasport", txt_pasport.Text);
+                                command.Parameters.AddWithValue("@gender", comboBox_gender.Text);
+                                DateTime date = DateTime.ParseExact(data_picker_birthday.Text, "dd.MM.yyyy", CultureInfo.InvariantCulture);
+                                string newDateStr = date.ToString("yyyy-MM-dd");
+                                command.Parameters.AddWithValue("@birthday", newDateStr);
+                                command.Parameters.AddWithValue("@address", txt_address.Text);
+                                command.Parameters.AddWithValue("@description", txt_description.Text);
                                 command.ExecuteNonQuery();
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
                             name = null;
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                     }
                 }
@@ -184,5 +213,6 @@ namespace Hotel
                 name = Convert.ToString(selectedRow["ФИО"]);
             }
         }
+
     }
 }

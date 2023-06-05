@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Hotel
 {
@@ -13,10 +15,12 @@ namespace Hotel
     {
 
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=hotel.db");
-        string query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', reservation.date_from AS 'Занят с', reservation.date_to AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых', CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) + CAST( doplata AS INTEGER) AS 'Итого' FROM reservation, rooms where room = rooms.id";
+        string query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', strftime('%d.%m.%Y', reservation.date_from) AS 'Занят с', strftime('%d.%m.%Y', reservation.date_to) AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых',                       CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) + CAST( doplata AS REAL) AS 'Итого' FROM reservation, rooms where room = rooms.id";
         string id = null;
         string name = null;
         string sum = null;
+        string query1 = null;
+        string date1 = null, date2 = null, res = null, num = null;
 
         public Reservation_Window()
         {
@@ -34,7 +38,7 @@ namespace Hotel
 
             comboBox_num.Items.Clear();
             comboBox_num_f.Items.Clear();
-            string query1 = "SELECT rooms.num FROM rooms";
+            string query1 = "SELECT num FROM rooms";
             SQLiteCommand command = new SQLiteCommand(query1, sqlConnection);
             SQLiteDataReader reader = command.ExecuteReader();
             while (reader.Read())
@@ -49,10 +53,10 @@ namespace Hotel
             sqlConnection.Close();
         }
 
-        public void refresh_table1(string queryl)
+        public void refresh_table1()
         {
             sqlConnection.Open();
-            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(queryl, sqlConnection);
+            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query1, sqlConnection);
             DataTable dataTable = new DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid1.ItemsSource = dataTable.DefaultView;
@@ -67,7 +71,14 @@ namespace Hotel
             txt_holiday.Text = "";
             comboBox_res.Text = "";
         }
-
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var isValid = Regex.IsMatch(txt_holiday.Text + e.Text, @"\A[0-9]+\z");
+            if (!isValid)
+            {
+                e.Handled = true;
+            }
+        }
         private void back_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -97,23 +108,30 @@ namespace Hotel
                     sqlConnection.Open();
 
                     string sql = "INSERT INTO reservation (date_from, date_to, reserv, room, holyday) " +
-                                    "VALUES ('" + date_picker1.Text + "', '" + date_picker2.Text + "', '" + comboBox_res.Text + "', (select rooms.id from rooms WHERE num == '" + comboBox_num.Text + "'), '" + txt_holiday.Text + "')";
+                                    "VALUES (@date1, @date2, @reserv, (select rooms.id from rooms WHERE num == @room), @holyday)";
 
-                    SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
+                    SQLiteCommand command = new SQLiteCommand(sql, sqlConnection); 
 
+                    DateTime date = DateTime.Parse(date_picker1.Text);
+                    string formattedDate = date.ToString("yyyy-MM-dd");
+                    command.Parameters.AddWithValue("@date1", formattedDate);
+
+                    date = DateTime.Parse(date_picker2.Text);
+                    formattedDate = date.ToString("yyyy-MM-dd");
+                    command.Parameters.AddWithValue("@date2", formattedDate);
+
+                    command.Parameters.AddWithValue("@reserv", comboBox_res.Text);
+                    command.Parameters.AddWithValue("@room", comboBox_num.Text);
+                    command.Parameters.AddWithValue("@holyday", txt_holiday.Text);
                     command.ExecuteNonQuery();
-
                     sqlConnection.Close();
+                  
                     refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);   sqlConnection.Close();}
 
             }
         }
-
-
-
-
 
         private void delButton_Click(object sender, RoutedEventArgs e)
         {
@@ -132,11 +150,10 @@ namespace Hotel
                             SQLiteCommand command = new SQLiteCommand($"DELETE FROM reservation WHERE id = '{id}'", connection);
                             command.ExecuteNonQuery();
                             refresh_table();
-                            MessageBox.Show("Запись удалена", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         id = null;
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
 
                 }
@@ -173,21 +190,32 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE reservation SET date_from =   '" + date_picker1.Text + "', date_to = '" + date_picker2.Text + "', reserv = '" + comboBox_res.Text + "', room = (select rooms.id from rooms WHERE num == '" + comboBox_num.Text + "'), holyday = '" + txt_holiday.Text + "' WHERE id = @id", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE reservation SET date_from =   @date1, date_to = @date2, reserv = @reserv, room = (select rooms.id from rooms WHERE num == @room), holyday = @holyday WHERE id = @id", connection);
                                 command.Parameters.AddWithValue("@id", id);
+
+                                DateTime date = DateTime.Parse(date_picker1.Text);
+                                string formattedDate = date.ToString("yyyy-MM-dd");
+                                command.Parameters.AddWithValue("@date1", formattedDate);
+
+                                date = DateTime.Parse(date_picker2.Text);
+                                formattedDate = date.ToString("yyyy-MM-dd");
+                                command.Parameters.AddWithValue("@date2", formattedDate);
+
+                                command.Parameters.AddWithValue("@reserv", comboBox_res.Text);
+                                command.Parameters.AddWithValue("@room", comboBox_num.Text);
+                                command.Parameters.AddWithValue("@holyday", txt_holiday.Text);
                                 command.ExecuteNonQuery();
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
                             id = null;
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                     }
                 }
             }
         }
-        string date1 = null, date2 = null, res = null, num = null;
+
         private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataRowView selectedRow = (DataRowView)dataGrid.SelectedItem;
@@ -201,48 +229,65 @@ namespace Hotel
                 txt_holiday.Text = Convert.ToString(selectedRow["Кол-во вых"]);
                 name = null;
                 id = Convert.ToString(selectedRow["Шифр"]);
-                string query1 = "select name AS ФИО, type_of_foods.type AS 'Тип питания' from clients, type_of_foods where type_of_foods.id = clients.type_food AND order_code = " + id;
-                refresh_table1(query1);
+                query1 = "select name AS ФИО, type_of_foods.type AS 'Тип питания' from clients, type_of_foods where type_of_foods.id = clients.type_food AND order_code = " + id;
+                refresh_table1();
             }
         }
 
         private void button_filter_Click(object sender, RoutedEventArgs e)
         {
-            query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', reservation.date_from AS 'Занят с', reservation.date_to AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых', CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) AS 'Итого' FROM reservation, room_types";
+            query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', strftime('%d.%m.%Y', reservation.date_from) AS 'Занят с', strftime('%d.%m.%Y', reservation.date_to) AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых',                       CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) + CAST( doplata AS REAL) AS 'Итого' FROM reservation, rooms where room = rooms.id ";
+            sqlConnection.Open();
             if (CheckBox1.IsChecked == true && comboBox_num_f.Text.Length != 0)
             {
-                query = query + " WHERE [Номер] = '" + comboBox_num_f.Text + "'";
+                query = query + " AND [Номер] = @num";
 
                 if (CheckBox2.IsChecked == true && date_picker_f.Text.Length != 0)
                 {
-                    query = query + " AND  strftime('%s', substr(reservation.date_from, 7, 4) || '-' || substr(reservation.date_from, 4, 2) || '-' || substr(reservation.date_from, 1, 2)) <= strftime('%s',  substr('" + date_picker_f.Text + "', 7, 4) || '-' || substr('" + date_picker_f.Text + "', 4, 2) || '-' || substr('" + date_picker_f.Text + "', 1, 2)) AND strftime('%s', substr(reservation.date_to, 7, 4) || '-' || substr(reservation.date_to, 4, 2) || '-' || substr(reservation.date_to, 1, 2)) >= strftime('%s', substr('" + date_picker_f.Text + "', 7, 4) || '-' || substr('" + date_picker_f.Text + "', 4, 2) || '-' || substr('" + date_picker_f.Text + "', 1, 2))";
+                    query = query + " AND  strftime('%s',reservation.date_from) <= strftime('%s',  @date) AND strftime('%s',reservation.date_to) >= strftime('%s',  @date)";
 
                     if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0)
                     {
-                        query = query + " AND  reserv = '" + comboBox_res_f.Text + "'";
+                        query = query + " AND  reserv = @reserv";
                     }
                 }
                 else if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0)
                 {
-                    query = query + " AND  reserv = '" + comboBox_res_f.Text + "'";
+                    query = query + " AND  reserv = @reserv";
                 }
 
             }
             else if (CheckBox2.IsChecked == true && date_picker_f.Text.Length != 0)
             {
-                query = query + " WHERE strftime('%s', substr(reservation.date_from, 7, 4) || '-' || substr(reservation.date_from, 4, 2) || '-' || substr(reservation.date_from, 1, 2)) <= strftime('%s',  substr('" + date_picker_f.Text + "', 7, 4) || '-' || substr('" + date_picker_f.Text + "', 4, 2) || '-' || substr('" + date_picker_f.Text + "', 1, 2)) AND strftime('%s', substr(reservation.date_to, 7, 4) || '-' || substr(reservation.date_to, 4, 2) || '-' || substr(reservation.date_to, 1, 2)) >= strftime('%s', substr('" + date_picker_f.Text + "', 7, 4) || '-' || substr('" + date_picker_f.Text + "', 4, 2) || '-' || substr('" + date_picker_f.Text + "', 1, 2))";
+                query = query + " AND  strftime('%s',reservation.date_from) <= strftime('%s', @date) AND strftime('%s',reservation.date_to) >= strftime('%s',  @date)";
 
                 if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0)
                 {
-                    query = query + " AND  reserv = '" + comboBox_res_f.Text + "'";
+                    query = query + " AND  reserv = @reserv";
                 }
             }
             else if (CheckBox3.IsChecked == true && comboBox_res_f.Text.Length != 0)
             {
-                query = query + " WHERE reserv = '" + comboBox_res_f.Text + "'";
+                query = query + " AND reserv = @reserv";
 
             }
-            refresh_table();
+            SQLiteCommand command = new SQLiteCommand(query, sqlConnection);
+            command.Parameters.AddWithValue("@num", comboBox_num_f.Text);
+            if (CheckBox2.IsChecked == true && date_picker_f.Text.Length != 0)
+            {
+                DateTime date = DateTime.Parse(date_picker_f.Text);
+                string formattedDate = date.ToString("yyyy-MM-dd");
+                command.Parameters.AddWithValue("@date", formattedDate);
+            }
+
+            command.Parameters.AddWithValue("@reserv", comboBox_res_f.Text);
+            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter();
+            dataAdapter.SelectCommand = command;
+            DataTable dataTable = new DataTable();
+            dataAdapter.Fill(dataTable);
+            dataGrid.ItemsSource = null;
+            dataGrid.ItemsSource = dataTable.DefaultView;
+            sqlConnection.Close();
         }
 
         private void addButton1_Click(object sender, RoutedEventArgs e)
@@ -251,7 +296,7 @@ namespace Hotel
             {
                 choiceClientsWindow choiceClientsWindow = new choiceClientsWindow(id);
                 choiceClientsWindow.ShowDialog();
-                dataGrid1.ItemsSource = string.Empty;
+                refresh_table1();
             }
             else
             {
@@ -274,14 +319,14 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"UPDATE clients SET order_code = 0 WHERE name = '{name}'", connection);
+                            SQLiteCommand command = new SQLiteCommand("UPDATE clients SET order_code = 0 WHERE name = @name", connection);
+                            command.Parameters.AddWithValue("@name", name);
                             command.ExecuteNonQuery();
-                            MessageBox.Show("Запись удалена", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                             dataGrid1.ItemsSource = string.Empty;
                         }
                         name = null;
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
 
                 }
@@ -302,6 +347,7 @@ namespace Hotel
         {
             Rooms_Window rooms_Window = new Rooms_Window();
             rooms_Window.ShowDialog();
+            refresh_table();
         }
 
         private void cliButton_Click(object sender, RoutedEventArgs e)
@@ -327,12 +373,16 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"INSERT INTO transactions (personal_account, date_transaction, sum, description, complite) VALUES( (select id from clients where name = '" + name + "'), '" + DateTime.Now.ToShortDateString() + "', CAST('-" + sum + "' AS REAL),   'Оплата за номер №" + num + " (" + res + ") c " + date1 + " по " + date2 + "', 'Да')", connection);
+                            SQLiteCommand command = new SQLiteCommand($"INSERT INTO transactions (personal_account, date_transaction, sum, description, complite) VALUES( (select id from clients where name = @name), '" + DateTime.Now.ToShortDateString() + "', CAST('-'||@sum AS REAL),   'Оплата за номер №'||@num||' ('||@res||') c '||@date1||' по '||@date2||'.', 'Да')", connection);
+                            command.Parameters.AddWithValue("@name", name);
+                            command.Parameters.AddWithValue("@sum", sum);
+                            command.Parameters.AddWithValue("@num", num);
+                            command.Parameters.AddWithValue("@res", res);
+                            command.Parameters.AddWithValue("@date1", date1);
+                            command.Parameters.AddWithValue("@date2", date2);
                             command.ExecuteNonQuery();
                             MessageBox.Show("Транзакция проведена", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                            dataGrid1.ItemsSource = string.Empty;
                         }
-                        name = null;
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
                 }

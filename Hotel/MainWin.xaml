@@ -6,12 +6,15 @@
         xmlns:local="clr-namespace:Hotel"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
         mc:Ignorable="d"
-        Title="АИС Администрирование гостиницы" Height="468" Width="800" MinHeight="380" WindowStartupLocation="CenterScreen" Cursor="">
+        Title="АИС Администрирование гостиницы" Height="468" Width="800" MinHeight="380" WindowStartupLocation="CenterScreen" Cursor="" Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid>
         <Menu Background="#33908E8E"  VerticalAlignment="Top" Grid.ColumnSpan="2" >
-            <MenuItem Header="_Файл" Height="25">
-                <Separator Visibility="Hidden"/>
-                <MenuItem Header="_Выход" />
+            <MenuItem Header="_Управление" Height="25">
+                <MenuItem Header="_Поменять пароль" Click="MenuItem_pass_Click" />
+                <MenuItem x:Name="Control_btn" Header="_Управление аккаунтами"  Visibility="Collapsed" Click="Control_btn_Click" />
+                <Separator />
+                <MenuItem Header="_Выйти из аккаунта" Click="acc_exit" />
+                <MenuItem Header="_Выход" Click="MenuItem_Click" />
             </MenuItem>
             <MenuItem Header="_Справочники" Height="25">
                 <MenuItem Header="_Клиенты" Click="MenuItem_Clients_Click" />
@@ -33,9 +36,9 @@
                 <MenuItem Header="_Шахматка" Click="Button_chess_Click"/>
             </MenuItem>
             <MenuItem Header="_Печать" Height="25">
-                <MenuItem Header="_Должники" />
+                <MenuItem Header="_Должники" Click="MenuItem_Click_1" />
                 <MenuItem Header="_Свободные номера" />
-                <MenuItem Header="_Статистика" IsEnabled="False"/>
+                <MenuItem x:Name="MenuItem_stat" Header="_Статистика" IsEnabled="False"/>
             </MenuItem>
         </Menu>
         <StackPanel Margin="0,30,0,0" HorizontalAlignment="Left" Width="294" VerticalAlignment="Top" Grid.ColumnSpan="2" >

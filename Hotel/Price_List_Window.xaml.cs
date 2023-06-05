@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Hotel
 {
@@ -12,7 +14,7 @@ namespace Hotel
     public partial class Price_List_Window : Window
     {//
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=hotel.db");
-        string query = "SELECT CAST(price_list.id AS CHAR(15)) AS \"Шифр\", room_types.type AS \"Тип\", date_from AS \"Действует с\", date_to AS \"по\", holyday AS \"выходной\", valid AS \"Действует\", price AS \"Цена в сутки\", reservation_price AS \"Цена брони в сутки\" FROM price_list, room_types where price_list.room_type = room_types.id";
+        string query = "SELECT CAST(price_list.id AS CHAR(15)) AS 'Шифр', room_types.type AS 'Тип', strftime('%d.%m.%Y', date_from) AS 'Действует с', strftime('%d.%m.%Y', date_to) AS 'по', holyday AS 'выходной', valid AS 'Действует', CAST( price as text) AS 'Цена в сутки', CAST(reservation_price as text) AS 'Цена брони в сутки' FROM price_list, room_types where price_list.room_type = room_types.id";
         string id = null;
         public Price_List_Window()
         {
@@ -80,21 +82,50 @@ namespace Hotel
                     sqlConnection.Open();
 
                     string sql = "INSERT INTO price_list (room_type, date_from,  date_to, holyday, valid, price, reservation_price) " +
-                                    "VALUES ((select id from room_types where type like \"%" + comboBox_type.Text + "%\"), \"" + date_picker1.Text + "\", \"" + date_picker2.Text + "\", \"" + comboBox_holiday.Text + "\", \"" + comboBox_valid.Text + "\", \"" + txt_price.Text + "\", \"" + txt_reservation_price.Text + "\")";
+                                    "VALUES ((select id from room_types where type like @room_type), @date1, @date2, @holyday, @valid, @price, @reservation_price)";
 
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
+                    command.Parameters.AddWithValue("@room_type", comboBox_type.Text);
 
+                    DateTime date = DateTime.Parse(date_picker1.Text);
+                    string formattedDate = date.ToString("yyyy-MM-dd");
+                    command.Parameters.AddWithValue("@date1", formattedDate);
+
+                    date = DateTime.Parse(date_picker2.Text);
+                    formattedDate = date.ToString("yyyy-MM-dd");
+                    command.Parameters.AddWithValue("@date2", formattedDate);
+
+                    command.Parameters.AddWithValue("@holyday", comboBox_holiday.Text);
+                    command.Parameters.AddWithValue("@valid", comboBox_valid.Text);
+                    command.Parameters.AddWithValue("@price", txt_price.Text.Replace(",","."));
+                    command.Parameters.AddWithValue("@reservation_price", txt_reservation_price.Text.Replace(",", "."));
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
                     refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);   sqlConnection.Close();}
 
             }
         }
 
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var isValid = Regex.IsMatch(txt_price.Text + e.Text, @"\A[0-9]+(?:[.,])?(?:[0-9]{1,2})?\z");
+            if (!isValid)
+            {
+                e.Handled = true;
+            }
+        }
 
+        private void TextBox1_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var isValid = Regex.IsMatch(txt_reservation_price.Text + e.Text, @"\A[0-9]+(?:[.,])?(?:[0-9]{1,2})?\z");
+            if (!isValid)
+            {
+                e.Handled = true;
+            }
+        }
 
 
 
@@ -112,14 +143,13 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM price_list WHERE id = \"{id}\"", connection);
+                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM price_list WHERE id = '{id}'", connection);
                             command.ExecuteNonQuery();
                             refresh_table();
-                            MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         id = null;
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
 
                 }
@@ -153,15 +183,28 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE price_list SET room_type = (select id from room_types where type like\"" + comboBox_type.Text + "\"), date_from =   \"" + date_picker1.Text + "\", date_to = \"" + date_picker2.Text + "\", holyday = \"" + comboBox_holiday.Text + "\", valid = \"" + comboBox_valid.Text + "\", price = \"" + txt_price.Text + "\", reservation_price = \"" + txt_reservation_price.Text + "\" WHERE id = @id", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE price_list SET room_type = (select id from room_types where type like @room_type), date_from =   @date1, date_to = @date2, holyday = @holyday, valid = @valid, price = @price, reservation_price = @reservation_price WHERE id = @id", connection);
                                 command.Parameters.AddWithValue("@id", id);
+                                command.Parameters.AddWithValue("@room_type", comboBox_type.Text);
+
+                                DateTime date = DateTime.Parse(date_picker1.Text);
+                                string formattedDate = date.ToString("yyyy-MM-dd");
+                                command.Parameters.AddWithValue("@date1", formattedDate);
+
+                                date = DateTime.Parse(date_picker2.Text);
+                                formattedDate = date.ToString("yyyy-MM-dd");
+                                command.Parameters.AddWithValue("@date2", formattedDate);
+
+                                command.Parameters.AddWithValue("@holyday", comboBox_holiday.Text);
+                                command.Parameters.AddWithValue("@valid", comboBox_valid.Text);
+                                command.Parameters.AddWithValue("@price", txt_price.Text.Replace(",", "."));
+                                command.Parameters.AddWithValue("@reservation_price", txt_reservation_price.Text.Replace(",", "."));
                                 command.ExecuteNonQuery();
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
                             id = null;
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                     }
                 }
@@ -188,14 +231,14 @@ namespace Hotel
         private void CheckBox1_Checked(object sender, RoutedEventArgs e)
         {
 
-            query = "SELECT CAST(price_list.id AS CHAR(15)) AS \"Шифр\", room_types.type AS \"Тип\", date_from AS \"Действует с\", date_to AS \"по\", holyday AS \"выходной\", valid AS \"Действует\", price AS \"Цена в сутки\", reservation_price AS \"Цена брони в сутки\" FROM price_list, room_types where price_list.room_type = room_types.id AND valid = 'Да'";
+            query = "SELECT CAST(price_list.id AS CHAR(15)) AS 'Шифр', room_types.type AS 'Тип', strftime('%d.%m.%Y', date_from) AS 'Действует с', strftime('%d.%m.%Y', date_to) AS 'по', holyday AS 'выходной', valid AS 'Действует', CAST( price as text) AS 'Цена в сутки', CAST(reservation_price as text) AS 'Цена брони в сутки' FROM price_list, room_types where price_list.room_type = room_types.id AND valid = 'Да'";
             refresh_table();
 
         }
 
         private void CheckBox1_UnChecked(object sender, RoutedEventArgs e)
         {
-            query = "SELECT CAST(price_list.id AS CHAR(15)) AS \"Шифр\", room_types.type AS \"Тип\", date_from AS \"Действует с\", date_to AS \"по\", holyday AS \"выходной\", valid AS \"Действует\", price AS \"Цена в сутки\", reservation_price AS \"Цена брони в сутки\" FROM price_list, room_types where price_list.room_type = room_types.id";
+            query = "SELECT CAST(price_list.id AS CHAR(15)) AS 'Шифр', room_types.type AS 'Тип', strftime('%d.%m.%Y', date_from) AS 'Действует с', strftime('%d.%m.%Y', date_to) AS 'по', holyday AS 'выходной', valid AS 'Действует', CAST( price as text) AS 'Цена в сутки', CAST(reservation_price as text) AS 'Цена брони в сутки' FROM price_list, room_types where price_list.room_type = room_types.id";
             refresh_table();
         }
 

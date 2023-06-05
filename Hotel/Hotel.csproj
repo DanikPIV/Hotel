@@ -53,7 +53,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>resouse\photo_2023-05-30_14-27-15.ico</ApplicationIcon>
+    <ApplicationIcon>resouse\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -109,6 +109,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="account_control_Window.xaml.cs">
+      <DependentUpon>account_control_Window.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ChartWindow.xaml.cs">
       <DependentUpon>ChartWindow.xaml</DependentUpon>
     </Compile>
@@ -117,6 +120,9 @@
     </Compile>
     <Compile Include="choiceClientsWindow.xaml.cs">
       <DependentUpon>choiceClientsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="edit_pass_Window.xaml.cs">
+      <DependentUpon>edit_pass_Window.xaml</DependentUpon>
     </Compile>
     <Compile Include="hotel\AppContext.cs" />
     <Compile Include="AuthWindow.xaml.cs">
@@ -166,6 +172,10 @@
     <Compile Include="Type_Room_Window.xaml.cs">
       <DependentUpon>Type_Room_Window.xaml</DependentUpon>
     </Compile>
+    <Page Include="account_control_Window.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="AuthWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -183,6 +193,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ClientsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="edit_pass_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -285,7 +299,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="resouse\photo_2023-05-30_14-27-15.ico" />
+    <Resource Include="resouse\icon.ico" />
+    <Resource Include="resouse\default_JPG.jpg" />
     <Content Include="SqlServerTypes\readme.htm" />
     <Content Include="SqlServerTypes\x64\msvcr120.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

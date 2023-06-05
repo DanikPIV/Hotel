@@ -1,0 +1,40 @@
+﻿<Window x:Class="Hotel.account_control_Window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Hotel"
+        xmlns:SQLite="clr-namespace:System.Data.SQLite;assembly=System.Data.SQLite"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
+        mc:Ignorable="d"
+        Title="Предоставляемые услуги" Height="450" Width="839" MinHeight="450" MinWidth="839" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="311*"/>
+            <ColumnDefinition Width="330"/>
+        </Grid.ColumnDefinitions>
+        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+            <DataGrid.Effect>
+                <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+            </DataGrid.Effect>
+        </DataGrid>
+        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1" VerticalAlignment="Top">
+            <ComboBox x:Name="comboBox_root" materialDesign:HintAssist.Hint="Права*" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="5,5,5,5">
+                <ComboBoxItem Content="Администратор"/>
+                <ComboBoxItem Content="Пользователь"/>
+            </ComboBox>
+            <TextBox x:Name="txt_login"  materialDesign:HintAssist.Hint="Логин*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+            <PasswordBox x:Name="txt_password" materialDesign:HintAssist.Hint="Пароль*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Margin="19,172,0,0" Height="52" Width="228">
+            <Button x:Name="delButton" Content="Удалить" Margin="10,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="delButton_Click" Width="93"/>
+            <Button x:Name="editButton" Content="Изменить" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="editButton_Click"/>
+        </StackPanel>
+        <Button x:Name="addButton" Content="Добавить" Margin="29,227,0,0" Click="addButton_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Width="93" Height="32"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1" Height="32" Width="75">
+            <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

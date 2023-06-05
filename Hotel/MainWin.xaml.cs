@@ -1,11 +1,19 @@
-﻿using System.Windows;
+﻿using System.Data.SQLite;
+using System;
+using System.Windows;
+using Microsoft.Office.Interop.Excel;
+using Microsoft.Win32;
+using System.Data.SqlClient;
+using System.Data;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Hotel
 {
     /// <summary>
     /// Логика взаимодействия для MainWin.xaml
     /// </summary>
-    public partial class MainWin : Window
+    public partial class MainWin : System.Windows.Window
     {
         public MainWin()
         {
@@ -93,6 +101,147 @@ namespace Hotel
         {
             Rooms_Window rooms_Window = new Rooms_Window();
             rooms_Window.ShowDialog();
+        }
+
+        private void MenuItem_pass_Click(object sender, RoutedEventArgs e)
+        {
+            edit_pass_Window edit_Pass_Window = new edit_pass_Window();
+            edit_Pass_Window.ShowDialog();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+            conn.Open();
+            SQLiteCommand cmd = new SQLiteCommand("SELECT root FROM users where current = 1", conn);
+            string count = Convert.ToString(cmd.ExecuteScalar());
+
+            if (count == "Администратор")
+            {
+                Control_btn.Visibility = Visibility.Visible;
+                MenuItem_stat.IsEnabled = true;
+            }    
+            conn.Close();
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void acc_exit(object sender, RoutedEventArgs e)
+        {
+
+            
+                AuthWindow authWindow = new AuthWindow();
+                authWindow.Show();
+                Close();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            try
+            {
+                SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
+                using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
+                {
+                    connection.Open();
+                    SQLiteCommand command = new SQLiteCommand("UPDATE users SET current = 0 WHERE current = 1", connection);
+                    command.ExecuteNonQuery();
+                }
+
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        private void Control_btn_Click(object sender, RoutedEventArgs e)
+        {
+            account_control_Window account_Control_Window = new account_control_Window();
+            account_Control_Window.ShowDialog();
+        }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+
+            try
+            {
+
+                var filename = DateTime.Now.ToString("dd-MM-yyyy") + "-Должники.xlsx";
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Excel (*.xlsx)|*.xlsx",
+                    Title = "Export data to an Excel file",
+                    FileName = filename
+                };
+                if (saveFileDialog.ShowDialog() != true)
+                    return;
+
+
+                SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+                
+                var dataTable = new System.Data.DataTable();
+                using (var connection = new SQLiteConnection(conn))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand("select clients.id as i, clients.name as n, status_clients.status as s, printf(\"%.2f\", -1*SUM(sum)) as sm from transactions JOIN clients on clients.id = personal_account JOIN status_clients ON status_clients.id = clients.status   GROUP BY transactions.personal_account having -1*SUM(sum) > 0", connection))
+                    {
+                        var adapter = new SQLiteDataAdapter(command);
+                        adapter.Fill(dataTable);
+                    }
+                    connection.Close();
+                }
+                // Создаем Excel приложение
+                var excelApp = new Microsoft.Office.Interop.Excel.Application();
+                var workbook = excelApp.Workbooks.Add();
+                excelApp.DisplayAlerts = false; // выключить диалоги предупреждений.
+                                                // Заполняем лист данными
+                Worksheet worksheet = excelApp.ActiveSheet;
+                worksheet.Name = "Clients";
+                worksheet.Name = "Услуги";
+
+
+                worksheet.Cells[1, 1] = "=СЕГОДНЯ()";
+                worksheet.Range["A3:D3"].Merge();
+                worksheet.Cells[5, 1] = "№";
+                worksheet.Cells[5, 2] = "ФИО клиента";
+                worksheet.Cells[5, 3] = "Статус";
+                worksheet.Cells[5, 4] = "Задолженность, руб.";
+                worksheet.Cells[1, 1].Font.Bold = true;
+                worksheet.Range["A3:D3"].Font.Bold = true;
+                worksheet.Range["A6:D30"].EntireColumn.AutoFit();
+                worksheet.Columns[2].ColumnWidth = 225;
+                worksheet.Columns[2].ColumnWidth = 90;
+                worksheet.Range["D6:D30"].NumberFormat = "0.00";
+                // Заполнение ячеек листа из объекта DataTable.
+                int row = 6;
+                foreach (DataRow dataRow in dataTable.Rows)
+                {
+                    worksheet.Cells[row, 1] = dataRow["i"];
+                    worksheet.Cells[row, 2] = dataRow["n"];
+                    worksheet.Cells[row, 3] = dataRow["s"];
+                    worksheet.Cells[row, 4] = dataRow["sm"];
+                    row++;
+                }
+                var range = worksheet.Range["A5:D" + --row];
+                var borders = range.Borders;
+                borders.LineStyle = XlLineStyle.xlContinuous;
+                borders.Weight = 2d;
+
+                worksheet.Cells[3, 1].Font.Bold = true;
+                worksheet.Cells[3, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                worksheet.Cells[3, 1] = "Должники";
+                // Сохраняем файл
+                workbook.SaveAs(saveFileDialog.FileName);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+
+                // Открываем файл на просмотр
+                Process.Start("Excel.exe", saveFileDialog.FileName);
+            }
+            catch (Exception ex) { MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+
         }
     }
 }

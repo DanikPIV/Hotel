@@ -10,14 +10,14 @@
         Title="Персонал" Height="450" Width="839" MinHeight="450" MinWidth="839" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
             <RowDefinition Height="113*"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="311*"/>
             <ColumnDefinition Width="330"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="1">
 
 
             <Button x:Name="delButton" Content="Удалить" Margin="20,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="delButton_Click"/>
@@ -25,12 +25,12 @@
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
         </StackPanel>
-        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="0" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
             <DataGrid.Effect>
                 <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
-        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
+        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="0" VerticalAlignment="Top">
             <TextBox x:Name="txt_name" materialDesign:HintAssist.Hint="ФИО*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <TextBox x:Name="txt_position" materialDesign:HintAssist.Hint="Должность*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <TextBox x:Name="txt_employe_mode" materialDesign:HintAssist.Hint="Режим работы*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>

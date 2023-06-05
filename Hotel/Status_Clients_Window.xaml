@@ -10,14 +10,14 @@
         Title="Cтатусы клиентов" Height="450" Width="839" MinHeight="450" MinWidth="839" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="113*"/>
+            <RowDefinition/>
+            <RowDefinition Height="63"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="311*"/>
-            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="320"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="136,0,0,0" Grid.Row="1" Height="52" Width="373">
 
 
             <Button x:Name="delButton" Content="Удалить" Margin="20,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="delButton_Click"/>
@@ -25,16 +25,16 @@
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
         </StackPanel>
-        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+        <DataGrid x:Name="dataGrid" AutoGenerateColumns="True"  IsReadOnly="True" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}" Margin="10,10,5,5">
             <DataGrid.Effect>
                 <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
-        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
+        <StackPanel  HorizontalAlignment="Center" Grid.Column="1" MinWidth="300" VerticalAlignment="Top" Margin="0,10,0,0" Height="94" Width="300">
             <TextBox x:Name="txt_status" materialDesign:HintAssist.Hint="Статус*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <TextBox x:Name="txt_description" materialDesign:HintAssist.Hint="Описание" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">
+        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1" Height="32" Width="75">
             <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
         </StackPanel>
     </Grid>

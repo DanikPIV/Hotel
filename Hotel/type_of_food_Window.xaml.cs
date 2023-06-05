@@ -12,7 +12,7 @@ namespace Hotel
     public partial class type_of_food_Window : Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
-        string query = "SELECT type AS \"Тип питания\", description AS \"Описание\" FROM  type_of_foods";
+        string query = "SELECT type AS 'Тип питания', description AS 'Описание' FROM  type_of_foods";
         string type = null;
 
         public type_of_food_Window()
@@ -54,15 +54,17 @@ namespace Hotel
                 {
                     sqlConnection.Open();
 
-                    string sql = "INSERT INTO type_of_foods (type, description) VALUES (\"" + txt_type.Text + "\",  \"" + txt_description.Text + "\")";
+                    string sql = "INSERT INTO type_of_foods (type, description) VALUES (@type,  @description)";
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
+                    command.Parameters.AddWithValue("@type", txt_type.Text);
+                    command.Parameters.AddWithValue("@description", txt_description.Text);
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
-                }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
                 refresh_table();
+                }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n"+ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
+
             }
         }
 
@@ -80,14 +82,14 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM type_of_foods WHERE type = \"{type}\"", connection);
+                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM type_of_foods WHERE type = @type", connection);
+                            command.Parameters.AddWithValue("@type", type);
                             command.ExecuteNonQuery();
                             refresh_table();
-                            MessageBox.Show("Запись удалена", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         type = null;
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
                 }
             }
@@ -113,16 +115,15 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE type_of_foods SET type = \"" + txt_type.Text + "\", description = \"" + txt_description.Text + "\" WHERE type = @type", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE type_of_foods SET type = @type, description = @description WHERE type = @type", connection);
                                 command.Parameters.AddWithValue("@type", type);
+                                command.Parameters.AddWithValue("@description", txt_description.Text);
                                 command.ExecuteNonQuery();
-
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
                             type = null;
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                     }
                 }

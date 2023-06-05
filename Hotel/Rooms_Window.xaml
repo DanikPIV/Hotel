@@ -7,17 +7,17 @@
         xmlns:SQLite="clr-namespace:System.Data.SQLite;assembly=System.Data.SQLite" 
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"  
         mc:Ignorable="d"
-        Title="Номера" Height="600" Width="901" MinHeight="600" MinWidth="839" WindowStartupLocation="CenterScreen">
+        Title="Номера" Height="564" Width="901" MinHeight="530" MinWidth="839" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
             <RowDefinition Height="113*"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="311*"/>
-            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center">
 
 
             <Button x:Name="delButton" Content="Удалить" Margin="20,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="delButton_Click"/>
@@ -25,7 +25,7 @@
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
         </StackPanel>
-        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" ItemsSource="{Binding Items}" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="1" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
+        <DataGrid x:Name="dataGrid" Margin="5,5,5,5" ItemsSource="{Binding Items}" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="0" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
@@ -45,15 +45,16 @@
                 <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
-        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="300" Width="300" Grid.Row="1">
+        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="280" Width="260" Grid.Row="0">
             <TextBox x:Name="txt_num" materialDesign:HintAssist.Hint="№*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <ComboBox x:Name="comboBox_type" materialDesign:HintAssist.Hint="Тип комнаты*" Margin="5,20,5,5" Style="{StaticResource MaterialDesignComboBox}" SelectedIndex="0"/>
             <TextBox x:Name="txt_floor" materialDesign:HintAssist.Hint="Этаж" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-            <TextBox x:Name="txt_doplata" materialDesign:HintAssist.Hint="Доплата" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+            <TextBox x:Name="txt_doplata" materialDesign:HintAssist.Hint="Доплата" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}" PreviewTextInput="TextBox_PreviewTextInput"/>
             <TextBox x:Name="txt_telephone" materialDesign:HintAssist.Hint="Телефон" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <TextBox x:Name="txt_description" materialDesign:HintAssist.Hint="Описание" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-            <Image x:Name="ImageControl"/>
-            <Button Content="Выбрать картинку" Click="Button_Click" HorizontalAlignment="Right"/>
+            <Image x:Name="ImageControl"  Stretch="Uniform" Height="150" MouseUp="Button_Click">
+            </Image>
+            <Button Content=". . ." Click="Button_Click" HorizontalAlignment="Right" Margin="0,-30,15,0" Style="{StaticResource MaterialDesignFloatingActionButton}" Height="30" Width="30"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">
             <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>

@@ -1,6 +1,11 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using Microsoft.Win32;
+using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,11 +16,11 @@ namespace Hotel
     /// <summary>
     /// Логика взаимодействия для Persolal_Account_Window.xaml
     /// </summary>
-    public partial class Persolal_Account_Window : Window
+    public partial class Persolal_Account_Window : System.Windows.Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
-        string query = "SELECT name AS \"ФИО\", id AS \"Лиц счет\", pasport AS \"Паспорт\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients";
-        string query1 = "SELECT complite as 'Проведено', id as '№ транзакции', date_transaction as 'Дата', sum AS \"Сумма руб\", description AS \"Назначение\" FROM  transactions where personal_acount = 0";
+        string query = "SELECT name AS 'ФИО', id AS 'Лиц счет', pasport AS 'Паспорт', address AS 'Адрес', clients.description AS 'Описание' FROM clients";
+        string query1 = "SELECT complite as 'Проведено', id as '№ транзакции', strftime('%d.%m.%Y', date_transaction) as 'Дата', CAST(sum  as text) AS 'Сумма руб', description AS 'Назначение' FROM  transactions where personal_acount = 0";
         string id = null;
         string id_t = null;
         public Persolal_Account_Window()
@@ -24,7 +29,7 @@ namespace Hotel
 
             sqlConnection.Open();
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid.ItemsSource = dataTable.DefaultView;
             ClearTxt();
@@ -37,7 +42,7 @@ namespace Hotel
             //{
             sqlConnection.Open();
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query1, sqlConnection);
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid1.ItemsSource = dataTable.DefaultView;
             ClearTxt();
@@ -55,7 +60,14 @@ namespace Hotel
             date_picker_t.Text = DateTime.Now.ToShortDateString();
             txt_description.Text = "";
         }
-
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var isValid = Regex.IsMatch(txt_sum.Text+ e.Text, @"\A-?(?:[0-9]+)?(?:[.,])?(?:[0-9]{1,2})?\z");
+            if (!isValid)
+            {
+                e.Handled = true;
+            }
+        }
         private void back_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -68,23 +80,29 @@ namespace Hotel
                 MessageBox.Show("Заполните все обязательные поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else if (Convert.ToDateTime(date_picker_t.Text) >= DateTime.Now) MessageBox.Show("Неверная дата", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            else if (id == null) MessageBox.Show("Выберите клиента!", "", MessageBoxButton.OK, MessageBoxImage.Information);
+            else if (id == null) MessageBox.Show("Выберите клиента!");
             else
             {
                 try
                 {
                     sqlConnection.Open();
 
-                    string sql = "INSERT INTO transactions (date_transaction, sum, personal_account, description) VALUES ('" + date_picker_t.Text + "', '" + txt_sum.Text + "' , '" + id + "', '" + txt_description.Text + "')";
+                    string sql = "INSERT INTO transactions (date_transaction, sum, personal_account, description) VALUES (@date1, @sum , @personal_account, @description)";
 
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
 
+                    DateTime date = DateTime.Parse(date_picker_t.Text);
+                    string formattedDate = date.ToString("yyyy-MM-dd");
+                    command.Parameters.AddWithValue("@date1", formattedDate);
+                    command.Parameters.AddWithValue("@sum", txt_sum.Text.Replace(",","."));
+                    command.Parameters.AddWithValue("@personal_account", id);
+                    command.Parameters.AddWithValue("@description",  txt_description.Text);
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
                     refresh_table1();
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close();}
 
             }
         }
@@ -94,16 +112,17 @@ namespace Hotel
         private void txt_find_KeyUp(object sender, KeyEventArgs e)
         {
             if (txt_find.Text == "")
-                query = "SELECT name AS \"ФИО\", id AS \"Лиц счет\", pasport AS \"Паспорт\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients";
+                query = "SELECT name AS 'ФИО', id AS 'Лиц счет', pasport AS 'Паспорт', address AS 'Адрес', clients.description AS 'Описание' FROM clients";
             else
-                query = "SELECT name AS \"ФИО\", id AS \"Лиц счет\", pasport AS \"Паспорт\", address AS \"Адрес\", clients.description AS \"Описание\" FROM clients WHERE name Like \"%" + txt_find.Text + "%\"";
-
+                query = "SELECT name AS 'ФИО', id AS 'Лиц счет', pasport AS 'Паспорт', address AS 'Адрес', clients.description AS 'Описание' FROM clients WHERE name Like '%'||@find||'%'";
             sqlConnection.Open();
-            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-            DataTable dataTable = new DataTable();
+            SQLiteCommand command = new SQLiteCommand(query, sqlConnection);
+            command.Parameters.AddWithValue("@find", txt_find.Text);
+            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter();
+            dataAdapter.SelectCommand = command;
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid.ItemsSource = dataTable.DefaultView;
-            ClearTxt();
             sqlConnection.Close();
         }
 
@@ -123,14 +142,13 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM transactions WHERE id = \"{id_t}\"", connection);
+                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM transactions WHERE id = '{id_t}'", connection);
                             command.ExecuteNonQuery();
-                            refresh_table1();
-                            MessageBox.Show("Запись удалена", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                            refresh_table1(); 
                         }
                         id_t = null;
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
 
                 }
@@ -158,15 +176,21 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE transactions SET sum =\"" + txt_sum.Text + "\",  date_transaction = \"" + date_picker_t.Text + "\", description = \"" + txt_description.Text + "\" WHERE id = @id_t", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE transactions SET sum = @sum,  date_transaction = @date1, description = @description WHERE id = @id_t", connection);
                                 command.Parameters.AddWithValue("@id_t", id_t);
+
+                                DateTime date = DateTime.Parse(date_picker_t.Text);
+                                string formattedDate = date.ToString("yyyy-MM-dd");
+                                command.Parameters.AddWithValue("@date1", formattedDate);
+                                command.Parameters.AddWithValue("@sum", txt_sum.Text.Replace(",", "."));
+                                command.Parameters.AddWithValue("@personal_account", id);
+                                command.Parameters.AddWithValue("@description", txt_description.Text);
                                 command.ExecuteNonQuery();
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table1();
                             }
                             id_t = null;
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                     }
                 }
@@ -179,14 +203,14 @@ namespace Hotel
             if (dataGrid.Items.Count != 0 && selectedRow != null)
             {
                 id = Convert.ToString(selectedRow["Лиц счет"]);
-                query1 = "SELECT complite as 'Проведено', id as '№ транзакции', date_transaction as 'Дата', sum AS \"Сумма руб\", description AS \"Назначение\" FROM  transactions where personal_account = " + id;
+                query1 = "SELECT complite as 'Проведено', id as '№ транзакции', strftime('%d.%m.%Y', date_transaction) as 'Дата',  CAST(sum  as text) AS 'Сумма руб', description AS 'Назначение' FROM  transactions where personal_account = " + id;
                 refresh_table1();
             }
         }
 
         private void ShowTransactionSum()
         {
-            string sqlQuery = "SELECT SUM(sum) FROM transactions where personal_account = " + id;
+            string sqlQuery = "SELECT SUM(sum) FROM transactions where complite = 'Да' AND personal_account = " + id;
             double sum = 0.0;
 
             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
@@ -204,7 +228,7 @@ namespace Hotel
                 }
             }
 
-            txt_balance.Text = "Остаток: " + sum.ToString() + " руб.";
+            txt_balance.Text = "Остаток: " + sum.ToString("F2") + " руб.";
             if (sum > 0)
             {
                 txt_balance.Foreground = Brushes.Blue;
@@ -251,6 +275,89 @@ namespace Hotel
         {
             ClientsWindow clientsWindow = new ClientsWindow();
             clientsWindow.ShowDialog();
+        }
+
+        private void dolgBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+
+                var filename = DateTime.Now.ToString("dd-MM-yyyy") + "-Должники.xlsx";
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Excel (*.xlsx)|*.xlsx",
+                    Title = "Export data to an Excel file",
+                    FileName = filename
+                };
+                if (saveFileDialog.ShowDialog() != true)
+                    return;
+
+
+                SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+
+                var dataTable = new System.Data.DataTable();
+                using (var connection = new SQLiteConnection(conn))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand("select clients.id as i, clients.name as n, status_clients.status as s, printf(\"%.2f\", -1*SUM(sum)) as sm from transactions JOIN clients on clients.id = personal_account JOIN status_clients ON status_clients.id = clients.status   GROUP BY transactions.personal_account having -1*SUM(sum) > 0", connection))
+                    {
+                        var adapter = new SQLiteDataAdapter(command);
+                        adapter.Fill(dataTable);
+                    }
+                    connection.Close();
+                }
+                // Создаем Excel приложение
+                var excelApp = new Microsoft.Office.Interop.Excel.Application();
+                var workbook = excelApp.Workbooks.Add();
+                excelApp.DisplayAlerts = false; // выключить диалоги предупреждений.
+                                                // Заполняем лист данными
+                Worksheet worksheet = excelApp.ActiveSheet;
+                worksheet.Name = "Clients";
+                worksheet.Name = "Услуги";
+
+
+                worksheet.Cells[1, 1] = "=СЕГОДНЯ()";
+                worksheet.Range["A3:D3"].Merge();
+                worksheet.Cells[5, 1] = "№";
+                worksheet.Cells[5, 2] = "ФИО клиента";
+                worksheet.Cells[5, 3] = "Статус";
+                worksheet.Cells[5, 4] = "Задолженность, руб.";
+                worksheet.Cells[1, 1].Font.Bold = true;
+                worksheet.Range["A3:D3"].Font.Bold = true;
+                worksheet.Range["A6:D30"].EntireColumn.AutoFit();
+                worksheet.Columns[2].ColumnWidth = 225;
+                worksheet.Columns[2].ColumnWidth = 90;
+                worksheet.Range["D6:D30"].NumberFormat = "0.00";
+                // Заполнение ячеек листа из объекта DataTable.
+                int row = 6;
+                foreach (DataRow dataRow in dataTable.Rows)
+                {
+                    worksheet.Cells[row, 1] = dataRow["i"];
+                    worksheet.Cells[row, 2] = dataRow["n"];
+                    worksheet.Cells[row, 3] = dataRow["s"];
+                    worksheet.Cells[row, 4] = dataRow["sm"];
+                    row++;
+                }
+                var range = worksheet.Range["A5:D" + --row];
+                var borders = range.Borders;
+                borders.LineStyle = XlLineStyle.xlContinuous;
+                borders.Weight = 2d;
+
+                worksheet.Cells[3, 1].Font.Bold = true;
+                worksheet.Cells[3, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                worksheet.Cells[3, 1] = "Должники";
+                // Сохраняем файл
+                workbook.SaveAs(saveFileDialog.FileName);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+
+                // Открываем файл на просмотр
+                Process.Start("Excel.exe", saveFileDialog.FileName);
+            }
+            catch (Exception ex) { MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+
         }
     }
 }

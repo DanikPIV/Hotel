@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Hotel
 {
@@ -12,7 +14,7 @@ namespace Hotel
     public partial class Type_Room_Window : Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
-        string query = "SELECT type AS \"Тип\", count AS \"Мест\", description AS \"Описание\" FROM  room_types";
+        string query = "SELECT type AS 'Тип', count AS 'Мест', description AS 'Описание' FROM  room_types";
         string type = null;
         public Type_Room_Window()
         {
@@ -55,21 +57,22 @@ namespace Hotel
             {
                 try
                 {
-                    string desc = txt_description.Text;
-                    desc.Replace("\\\"", "");
                     sqlConnection.Open();
 
-                    string sql = "INSERT INTO room_types (type, count, description) VALUES (\"" + txt_type.Text + "\", \"" + txt_count.Text + "\", \"" + desc + "\")";
+                    string sql = "INSERT INTO room_types (type, count, description) VALUES (@type, @count, @description)";
 
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
-
+                    command.Parameters.AddWithValue("@type", txt_type.Text);
+                    command.Parameters.AddWithValue("@count", txt_count.Text);
+                    command.Parameters.AddWithValue("@description", txt_description.Text);
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
-                }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
                 refresh_table();
+                }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); 
+                    sqlConnection.Close();}
+
             }
         }
 
@@ -87,16 +90,16 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM room_types WHERE type = \"{type}\"", connection);
+                            SQLiteCommand command = new SQLiteCommand("DELETE FROM room_types WHERE type = @type", connection);
+                            command.Parameters.AddWithValue("@type", type);
                             command.ExecuteNonQuery();
                             refresh_table();
-                            MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                    }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
-
+                           }
                     type = null;
+                    }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);}
+
+
                 }
             }
 
@@ -121,22 +124,28 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE room_types SET type = \"" + txt_type.Text + "\", count = \"" + txt_count.Text + "\", description = \"" + txt_description.Text + "\" WHERE type = \"" + type + "\"", connection);
-                                command.Parameters.AddWithValue("@type", type);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE room_types SET type = @type, count = @count, description = @description WHERE type = @type1", connection);
+                                command.Parameters.AddWithValue("@type1", type);
+                                command.Parameters.AddWithValue("@type", txt_type.Text);
+                                command.Parameters.AddWithValue("@count", txt_count.Text);
+                                command.Parameters.AddWithValue("@description", txt_description.Text);
                                 command.ExecuteNonQuery();
 
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
                             type = null;
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                     }
                 }
             }
         }
-
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("^[0-9]*$");
+            e.Handled = !regex.IsMatch(e.Text);
+        }
         private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataRowView selectedRow = (DataRowView)dataGrid.SelectedItem;

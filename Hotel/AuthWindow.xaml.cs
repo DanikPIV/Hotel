@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -47,10 +48,23 @@ namespace Hotel
             }
             if (authUser != null)
             {
-                MessageBox.Show("Вы авторизованы!");
                 MainWin mainWin = new MainWin();
+                try
+                {
+                    SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
+                    using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
+                    {
+                        connection.Open();
+                        SQLiteCommand command = new SQLiteCommand("UPDATE users SET current = 1 WHERE login = '"+ login+"'", connection);
+                        command.ExecuteNonQuery();
+                    }
+                MessageBox.Show("Добро пожаловать!");
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+
                 mainWin.Show();
-                Hide();
+
+                Close();
             }
 
             else
@@ -58,5 +72,31 @@ namespace Hotel
 
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+            conn.Open();
+            SQLiteCommand cmd = new SQLiteCommand("SELECT COUNT(*) FROM users", conn);
+            int count = Convert.ToInt32(cmd.ExecuteScalar());
+            conn.Close();
+
+            Hide();
+
+            if (count == 0)
+            {
+                MainWindow reg = new MainWindow();
+                reg.ShowDialog();
+                Show();
+            }
+            else
+            {                
+                // Открываем окно авторизации
+                Show();
+                    
+                conn.Close();
+                
+            }
+        }
     }
+    
 }

@@ -12,7 +12,7 @@ namespace Hotel
     public partial class Servises_of_room_Window : Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
-        string query = "SELECT description AS \"Вид работ\" FROM  services_rooms";
+        string query = "SELECT description AS 'Вид работ' FROM  services_rooms";
         string servise = null;
 
         public Servises_of_room_Window()
@@ -54,15 +54,16 @@ namespace Hotel
                 {
                     sqlConnection.Open();
 
-                    string sql = "INSERT INTO services_rooms (description) VALUES (\"" + txt_servise.Text + "\")";
+                    string sql = "INSERT INTO services_rooms (description) VALUES (@ser)";
                     SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
+                    command.Parameters.AddWithValue("@ser", txt_servise.Text);
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
-                }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
                 refresh_table();
+                }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);  sqlConnection.Close();}
+
             }
         }
 
@@ -80,16 +81,15 @@ namespace Hotel
                         using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                         {
                             connection.Open();
-                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM services_rooms WHERE description = \"{servise}\"", connection);
+                            SQLiteCommand command = new SQLiteCommand($"DELETE FROM services_rooms WHERE description = '{servise}'", connection);
                             command.ExecuteNonQuery();
                             refresh_table();
-                            MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                    }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
-
                     servise = null;
+                    }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+
+
                 }
             }
 
@@ -114,17 +114,16 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE services_rooms SET description = \"" + txt_servise.Text + "\" WHERE description = @servise", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE services_rooms SET description = @ser WHERE description = @servise", connection);
                                 command.Parameters.AddWithValue("@servise", servise);
+                                command.Parameters.AddWithValue("@ser", txt_servise.Text);
                                 command.ExecuteNonQuery();
-
-                                MessageBox.Show("Запись отредактирована", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 refresh_table();
                             }
-                        }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-
                         servise = null;
+                        }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+
                     }
                 }
             }
@@ -135,8 +134,7 @@ namespace Hotel
             DataRowView selectedRow = (DataRowView)dataGrid.SelectedItem;
             if (dataGrid.Items.Count != 0 && selectedRow != null)
             {
-                txt_servise.Text = Convert.ToString(selectedRow["Вид работ"]);
-                servise = Convert.ToString(selectedRow["Вид работ"]);
+                servise = txt_servise.Text = Convert.ToString(selectedRow["Вид работ"]);                
             }
         }
     }

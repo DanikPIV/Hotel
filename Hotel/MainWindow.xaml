@@ -6,7 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
         xmlns:local="clr-namespace:Hotel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600" Background="#FFE8E8E8" WindowStartupLocation="CenterScreen">
+        Title="Регистрация" Height="450" Width="600" Background="#FFE8E8E8" WindowStartupLocation="CenterScreen">
     <Grid>
         <Border MinWidth="400" Margin="15" Background="White" VerticalAlignment="Center" Padding="30" MaxWidth="550" CornerRadius="20">
             <Border.Effect>
@@ -14,6 +14,10 @@
             </Border.Effect>
             <StackPanel>
                 <TextBlock Text="Новый пользователь" FontSize="30" FontWeight="Bold" Margin="0 0 0 30"/>
+                <ComboBox x:Name="root1" materialDesign:HintAssist.Hint="Права" Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                    <ComboBoxItem Content="Администратор" />
+                    <ComboBoxItem Content="Пользователь"/>
+                </ComboBox>
                 <TextBox x:Name="Login" materialDesign:HintAssist.Hint="Введите логин" Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Login_LostFocus"/>
                 <PasswordBox x:Name="Password" materialDesign:HintAssist.Hint="Введите пароль" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" LostFocus="Password_TextChanged"/>                
                 <PasswordBox x:Name="Password_2" materialDesign:HintAssist.Hint="Повторите пароль" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" LostFocus="Password_TextChanged2"/>
