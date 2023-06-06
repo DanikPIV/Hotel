@@ -60,9 +60,9 @@ namespace Hotel
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
-                refresh_table();
+                    refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);  sqlConnection.Close();}
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
             }
         }
@@ -85,7 +85,7 @@ namespace Hotel
                             command.ExecuteNonQuery();
                             refresh_table();
                         }
-                    servise = null;
+                        servise = null;
                     }
                     catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -120,7 +120,7 @@ namespace Hotel
                                 command.ExecuteNonQuery();
                                 refresh_table();
                             }
-                        servise = null;
+                            servise = null;
                         }
                         catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -134,7 +134,7 @@ namespace Hotel
             DataRowView selectedRow = (DataRowView)dataGrid.SelectedItem;
             if (dataGrid.Items.Count != 0 && selectedRow != null)
             {
-                servise = txt_servise.Text = Convert.ToString(selectedRow["Вид работ"]);                
+                servise = txt_servise.Text = Convert.ToString(selectedRow["Вид работ"]);
             }
         }
     }

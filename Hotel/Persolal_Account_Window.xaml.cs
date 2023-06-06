@@ -21,6 +21,7 @@ namespace Hotel
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
         string query = "SELECT name AS 'ФИО', id AS 'Лиц счет', pasport AS 'Паспорт', address AS 'Адрес', clients.description AS 'Описание' FROM clients";
         string query1 = "SELECT complite as 'Проведено', id as '№ транзакции', strftime('%d.%m.%Y', date_transaction) as 'Дата', CAST(sum  as text) AS 'Сумма руб', description AS 'Назначение' FROM  transactions where personal_acount = 0";
+        string name = null;
         string id = null;
         string id_t = null;
         public Persolal_Account_Window()
@@ -62,7 +63,7 @@ namespace Hotel
         }
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            var isValid = Regex.IsMatch(txt_sum.Text+ e.Text, @"\A-?(?:[0-9]+)?(?:[.,])?(?:[0-9]{1,2})?\z");
+            var isValid = Regex.IsMatch(txt_sum.Text + e.Text, @"\A-?(?:[0-9]+)?(?:[.,])?(?:[0-9]{1,2})?\z");
             if (!isValid)
             {
                 e.Handled = true;
@@ -94,15 +95,15 @@ namespace Hotel
                     DateTime date = DateTime.Parse(date_picker_t.Text);
                     string formattedDate = date.ToString("yyyy-MM-dd");
                     command.Parameters.AddWithValue("@date1", formattedDate);
-                    command.Parameters.AddWithValue("@sum", txt_sum.Text.Replace(",","."));
+                    command.Parameters.AddWithValue("@sum", txt_sum.Text.Replace(",", "."));
                     command.Parameters.AddWithValue("@personal_account", id);
-                    command.Parameters.AddWithValue("@description",  txt_description.Text);
+                    command.Parameters.AddWithValue("@description", txt_description.Text);
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
                     refresh_table1();
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close();}
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
             }
         }
@@ -144,7 +145,7 @@ namespace Hotel
                             connection.Open();
                             SQLiteCommand command = new SQLiteCommand($"DELETE FROM transactions WHERE id = '{id_t}'", connection);
                             command.ExecuteNonQuery();
-                            refresh_table1(); 
+                            refresh_table1();
                         }
                         id_t = null;
                     }
@@ -203,6 +204,7 @@ namespace Hotel
             if (dataGrid.Items.Count != 0 && selectedRow != null)
             {
                 id = Convert.ToString(selectedRow["Лиц счет"]);
+                name = Convert.ToString(selectedRow["ФИО"]);
                 query1 = "SELECT complite as 'Проведено', id as '№ транзакции', strftime('%d.%m.%Y', date_transaction) as 'Дата',  CAST(sum  as text) AS 'Сумма руб', description AS 'Назначение' FROM  transactions where personal_account = " + id;
                 refresh_table1();
             }
@@ -358,6 +360,113 @@ namespace Hotel
             }
             catch (Exception ex) { MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
+        }
+
+        private void print_Click(object sender, RoutedEventArgs e)
+        {
+            if (id != null)
+            {
+                // Создаем Excel приложение
+                var excelApp = new Microsoft.Office.Interop.Excel.Application();
+                var workbook = excelApp.Workbooks.Add();
+                try
+                {
+
+                    var filename = DateTime.Now.ToString("dd-MM-yyyy") + "-Движение_по_счету_" + id + ".xlsx";
+
+                    var saveFileDialog = new SaveFileDialog
+                    {
+                        Filter = "Excel (*.xlsx)|*.xlsx",
+                        Title = "Export data to an Excel file",
+                        FileName = filename
+                    };
+                    if (saveFileDialog.ShowDialog() != true)
+                        return;
+
+
+                    SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+
+                    var dataTable = new System.Data.DataTable();
+                    using (var connection = new SQLiteConnection(conn))
+                    {
+                        connection.Open();
+                        using (var command = new SQLiteCommand(query1, connection))
+                        {
+                            var adapter = new SQLiteDataAdapter(command);
+                            adapter.Fill(dataTable);
+                        }
+                        connection.Close();
+                    }
+                    excelApp.DisplayAlerts = false; // выключить диалоги предупреждений.
+                                                    // Заполняем лист данными
+                    Worksheet worksheet = excelApp.ActiveSheet;
+                    worksheet.Name = "Движение_по_счету_" + id;
+
+
+                    worksheet.Cells[1, 1] = DateTime.Now.ToString("dd.MM.yyyy");
+                    worksheet.Cells[1, 1].Font.Bold = true;
+                    worksheet.Range["A1:C1"].Merge();
+
+                    worksheet.Range["A3:E3"].Merge();
+                    worksheet.Cells[3, 1].Font.Bold = true;
+                    worksheet.Cells[3, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                    worksheet.Cells[3, 1] = "Движение по по счету " + id + " клиента: " + name;
+
+                    for (int i = 0; i < dataTable.Columns.Count; i++)
+                    {
+                        worksheet.Cells[5, i + 1] = dataTable.Columns[i].ColumnName;
+                    }
+                    worksheet.Range["A5:Z5"].Font.Bold = true;
+                    //worksheet.Range["A5:A25"].Font.Bold = true;
+
+                    worksheet.Range["A6:I30"].EntireColumn.AutoFit();
+                    worksheet.Columns[3].ColumnWidth = 12;
+                    worksheet.Columns[4].ColumnWidth = 12;
+                    worksheet.Columns[5].ColumnWidth = 80;
+                    //worksheet.Range["F:G"].NumberFormat = "0.00";
+                    worksheet.Range["D6:D50"].NumberFormat = "0.00";
+                    worksheet.Range["A:Z"].Font.Name = "Times New Roman";
+
+                    // Заполнение ячеек листа из объекта DataTable.
+                    int row = 6;
+                    foreach (DataRow dataRow in dataTable.Rows)
+                    {
+                        for (int i = 0; i < dataTable.Columns.Count; i++)
+                        {
+                            worksheet.Cells[row, i + 1] = dataRow[dataTable.Columns[i].ColumnName];
+                        }
+                        row++;
+                    }
+
+                    // Сохраняем файл
+                    workbook.SaveAs(saveFileDialog.FileName);
+                    workbook.Close();
+                    excelApp.Quit();
+                    Marshal.ReleaseComObject(excelApp);
+
+                    // Открываем файл на просмотр
+                    Process.Start("Excel.exe", saveFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    workbook.Close();
+                    excelApp.Quit();
+                    Marshal.ReleaseComObject(excelApp);
+                }
+            }
+            else MessageBox.Show("Сначала выбери клиента");
+        }
+
+        private void print_pay_Click(object sender, RoutedEventArgs e)
+        {
+            if (id != null)
+            {
+                MessggeBoks messgge = new MessggeBoks(id);
+                messgge.ShowDialog();
+
+            }
+            else MessageBox.Show("Сначала выбери клиента");
         }
     }
 }

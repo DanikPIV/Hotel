@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Data.SQLite;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Hotel
 {
@@ -96,7 +86,7 @@ namespace Hotel
                                     oldpass = login;
                                 }
                             }
-                        }   
+                        }
                     }
 
                     if (opass == oldpass)
@@ -106,7 +96,7 @@ namespace Hotel
                             using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                             {
                                 connection.Open();
-                                SQLiteCommand command = new SQLiteCommand("UPDATE users SET password = '"+pass+"' WHERE current = 1", connection);
+                                SQLiteCommand command = new SQLiteCommand("UPDATE users SET password = '" + pass + "' WHERE current = 1", connection);
                                 command.ExecuteNonQuery();
                                 MessageBox.Show("Пароль изменен", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                                 Close();
@@ -122,7 +112,7 @@ namespace Hotel
 
         }
 
-        
+
 
         private void Password_TextChanged(object sender, RoutedEventArgs e)
         {

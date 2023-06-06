@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Data;
-using System.Data.Common;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.Office.Interop.Excel;
-using Microsoft.Win32;
 
 namespace Hotel
 {
@@ -139,7 +137,7 @@ namespace Hotel
 
                     refresh_table1();
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" +  ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);  sqlConnection.Close();}
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
             }
         }
@@ -295,6 +293,8 @@ namespace Hotel
         {
             if (id != null)
             {
+                var excelApp = new Microsoft.Office.Interop.Excel.Application();
+                var workbook = excelApp.Workbooks.Add();
                 try
                 {
                     var filename = DateTime.Now.ToString("dd-MM-yyyy") + "-услуги_" + name.Replace(" ", "_") + ".xlsx";
@@ -305,12 +305,11 @@ namespace Hotel
                         Title = "Export data to an Excel file",
                         FileName = filename
                     };
-                    if (saveFileDialog.ShowDialog() != true)
-                        return;
 
-                    var excelApp = new Microsoft.Office.Interop.Excel.Application();
+                    if (saveFileDialog.ShowDialog() != true) return;
+
+
                     excelApp.DisplayAlerts = false; // выключить диалоги предупреждений.
-                    var workbook = excelApp.Workbooks.Add();
                     workbook.SaveAs(saveFileDialog.FileName);
 
                     var dataTable = new System.Data.DataTable();
@@ -329,7 +328,7 @@ namespace Hotel
                     worksheet.Name = "Услуги";
 
                     // Заполнение ячеек листа из объекта DataTable.
-                    worksheet.Cells[1, 1] = "=СЕГОДНЯ()";
+                    worksheet.Cells[1, 1] = DateTime.Now.ToString("dd.MM.yyyy"); ;
                     worksheet.Cells[3, 1] = "Услуга";
                     worksheet.Cells[3, 2] = "Дата оказания услуги";
                     worksheet.Cells[3, 3] = "Цена руб";
@@ -363,12 +362,18 @@ namespace Hotel
                     // Открываем файл на просмотр
                     Process.Start("Excel.exe", saveFileDialog.FileName);
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    workbook.Close();
+                    excelApp.Quit();
+                    Marshal.ReleaseComObject(excelApp);
+                }
 
             }
             else MessageBox.Show("Сначала выберите клиента");
         }
 
-        
+
     }
 }

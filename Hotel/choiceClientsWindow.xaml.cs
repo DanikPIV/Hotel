@@ -50,13 +50,13 @@ namespace Hotel
         {
             try
             {
-            sqlConnection.Open();
-            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-            DataTable dataTable = new DataTable();
-            dataAdapter.Fill(dataTable);
-            dataGrid.ItemsSource = dataTable.DefaultView;
-            ClearTxt();
-            sqlConnection.Close();
+                sqlConnection.Open();
+                SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
+                DataTable dataTable = new DataTable();
+                dataAdapter.Fill(dataTable);
+                dataGrid.ItemsSource = dataTable.DefaultView;
+                ClearTxt();
+                sqlConnection.Close();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
@@ -70,7 +70,7 @@ namespace Hotel
             Close();
         }
 
-       
+
 
 
 
@@ -86,7 +86,7 @@ namespace Hotel
 
 
 
-       
+
         private void dataGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataRowView selectedRow = (DataRowView)dataGrid1.SelectedItem;

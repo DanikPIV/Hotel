@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using Microsoft.Win32;
+using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,11 +15,11 @@ namespace Hotel
     /// <summary>
     /// Логика взаимодействия для Reservation_Window.xaml
     /// </summary>
-    public partial class Reservation_Window : Window
+    public partial class Reservation_Window : System.Windows.Window
     {
 
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=hotel.db");
-        string query = "SELECT CAST(reservation.id AS CHAR (15) ) AS 'Шифр', strftime('%d.%m.%Y', reservation.date_from) AS 'Занят с', strftime('%d.%m.%Y', reservation.date_to) AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых',                       CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) + CAST( doplata AS REAL) AS 'Итого' FROM reservation, rooms where room = rooms.id";
+        string query = "SELECT reservation.id AS 'Шифр', strftime('%d.%m.%Y', reservation.date_from) AS 'Занят с', strftime('%d.%m.%Y', reservation.date_to) AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых', reservation.holyday AS 'Кол-во вых',                       CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) + CAST( doplata AS REAL) AS 'Итого' FROM reservation, rooms where room = rooms.id";
         string id = null;
         string name = null;
         string sum = null;
@@ -32,7 +36,7 @@ namespace Hotel
         {
             sqlConnection.Open();
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid.ItemsSource = dataTable.DefaultView;
 
@@ -57,7 +61,7 @@ namespace Hotel
         {
             sqlConnection.Open();
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query1, sqlConnection);
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid1.ItemsSource = dataTable.DefaultView;
             sqlConnection.Close();
@@ -110,7 +114,7 @@ namespace Hotel
                     string sql = "INSERT INTO reservation (date_from, date_to, reserv, room, holyday) " +
                                     "VALUES (@date1, @date2, @reserv, (select rooms.id from rooms WHERE num == @room), @holyday)";
 
-                    SQLiteCommand command = new SQLiteCommand(sql, sqlConnection); 
+                    SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
 
                     DateTime date = DateTime.Parse(date_picker1.Text);
                     string formattedDate = date.ToString("yyyy-MM-dd");
@@ -125,10 +129,10 @@ namespace Hotel
                     command.Parameters.AddWithValue("@holyday", txt_holiday.Text);
                     command.ExecuteNonQuery();
                     sqlConnection.Close();
-                  
+
                     refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);   sqlConnection.Close();}
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
             }
         }
@@ -283,7 +287,7 @@ namespace Hotel
             command.Parameters.AddWithValue("@reserv", comboBox_res_f.Text);
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter();
             dataAdapter.SelectCommand = command;
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid.ItemsSource = null;
             dataGrid.ItemsSource = dataTable.DefaultView;
@@ -348,6 +352,98 @@ namespace Hotel
             Rooms_Window rooms_Window = new Rooms_Window();
             rooms_Window.ShowDialog();
             refresh_table();
+        }
+
+        private void print_Click(object sender, RoutedEventArgs e)
+        {
+            // Создаем Excel приложение
+            var excelApp = new Microsoft.Office.Interop.Excel.Application();
+            var workbook = excelApp.Workbooks.Add();
+            try
+            {
+
+                var filename = DateTime.Now.ToString("dd-MM-yyyy") + "-Сдача_бронирование_номеров.xlsx";
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Excel (*.xlsx)|*.xlsx",
+                    Title = "Export data to an Excel file",
+                    FileName = filename
+                };
+                if (saveFileDialog.ShowDialog() != true)
+                    return;
+
+
+                SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+
+                var dataTable = new System.Data.DataTable();
+                using (var connection = new SQLiteConnection(conn))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand("SELECT reservation.id AS 'Шифр', strftime('%d.%m.%Y', reservation.date_from) AS 'Занят с', strftime('%d.%m.%Y', reservation.date_to) AS 'по', reserv AS 'Бронь',(SELECT num  FROM rooms WHERE room = rooms.id) AS 'Номер', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в раб/сут', CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END AS 'Цена в вых/сут', reservation.holyday AS 'Кол-во вых',                       CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Нет') ELSE (select price from price_list WHERE holyday = 'Нет')  END AS REAL)+ (CAST(CASE WHEN reservation.reserv = 'Бронь' THEN (select reservation_price from price_list WHERE holyday = 'Да') ELSE (select price from price_list WHERE holyday = 'Да')  END  AS REAL) * CAST(reservation.holyday AS INTEGER)) + CAST( doplata AS REAL) AS 'Итого, руб.' FROM reservation, rooms where room = rooms.id", connection))
+                    {
+                        var adapter = new SQLiteDataAdapter(command);
+                        adapter.Fill(dataTable);
+                    }
+                    connection.Close();
+                }
+                excelApp.DisplayAlerts = false; // выключить диалоги предупреждений.
+                                                // Заполняем лист данными
+                Worksheet worksheet = excelApp.ActiveSheet;
+                worksheet.Name = "Сдача_бронирование_номеров";
+
+
+                worksheet.Cells[1, 1] = DateTime.Now.ToString("dd.MM.yyyy");
+                worksheet.Cells[1, 1].Font.Bold = true;
+                worksheet.Range["A1:C1"].Merge();
+
+                worksheet.Range["A3:I3"].Merge();
+                worksheet.Cells[3, 1].Font.Bold = true;
+                worksheet.Cells[3, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                worksheet.Cells[3, 1] = "Сдача бронирование номеров";
+
+                for (int i = 0; i < dataTable.Columns.Count; i++)
+                {
+                    worksheet.Cells[5, i + 1] = dataTable.Columns[i].ColumnName;
+                }
+                worksheet.Range["A5:I5"].Font.Bold = true;
+                worksheet.Range["A5:A25"].Font.Bold = true;
+
+                worksheet.Range["A6:I30"].EntireColumn.AutoFit();
+                worksheet.Columns[2].ColumnWidth = 12;
+                worksheet.Columns[3].ColumnWidth = 12;
+                worksheet.Columns[2].ColumnWidth = 10;
+                worksheet.Range["F:G"].NumberFormat = "0.00";
+                worksheet.Range["I6:I50"].NumberFormat = "0.00";
+                worksheet.Range["A:Z"].Font.Name = "Times New Roman";
+
+                // Заполнение ячеек листа из объекта DataTable.
+                int row = 6;
+                foreach (DataRow dataRow in dataTable.Rows)
+                {
+                    for (int i = 0; i < dataTable.Columns.Count; i++)
+                    {
+                        worksheet.Cells[row, i + 1] = dataRow[dataTable.Columns[i].ColumnName];
+                    }
+                    row++;
+                }
+
+                // Сохраняем файл
+                workbook.SaveAs(saveFileDialog.FileName);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+
+                // Открываем файл на просмотр
+                Process.Start("Excel.exe", saveFileDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
         }
 
         private void cliButton_Click(object sender, RoutedEventArgs e)

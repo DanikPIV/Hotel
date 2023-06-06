@@ -25,7 +25,7 @@
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
         </StackPanel>
-        <Button x:Name="print" Content="Печать" Margin="0,223,92,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}"/>
+        <Button x:Name="print" Content="Печать" Margin="0,223,92,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print_Click"/>
         <GroupBox Header="Отбор" Margin="324,0,0,0" Height="137" VerticalAlignment="Center" Grid.Row="1" HorizontalAlignment="Left" Padding="5,5,5,5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="295">
                 <StackPanel Width="157" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -70,8 +70,7 @@
         <StackPanel Orientation="Horizontal"  Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right" >
             <Button x:Name="numButton" Content="Номера" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="numButton_Click" Background="#FF0800FF"/>
             <Button x:Name="cliButton" Content="Клиенты" Margin="10"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="cliButton_Click" Background="#FF0800FF"/>
-            <Button x:Name="foodButton" Content="Типы питания" Margin="10"  HorizontalAlignment="Right" VerticalAlignment="Top" Click="foodButton_Click" Background="#FF0800FF"/>
-        </StackPanel>
+             </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,5" Height="120" >
             <Button x:Name="delButton1" Content="-" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="delButton1_Click" Style="{StaticResource MaterialDesignFloatingActionMiniButton}"/>
             <Button x:Name="addButton1" Content="+" Margin="10" Click="addButton1_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignFloatingActionMiniButton}"/>

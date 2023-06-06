@@ -1,19 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Data;
-using System.Linq;
+using System.Data.SQLite;
+using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Security.Cryptography;
 
 namespace Hotel
 {
@@ -92,9 +83,9 @@ namespace Hotel
         private void editButton_Click(object sender, RoutedEventArgs e)
         {
             if (id == null)
-                    MessageBox.Show("Выберите пользователя", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            else if (txt_login.Text.Length == 0 || comboBox_root.Text.Length == 0)            
-                MessageBox.Show("Заполните все поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);            
+                MessageBox.Show("Выберите пользователя", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            else if (txt_login.Text.Length == 0 || comboBox_root.Text.Length == 0)
+                MessageBox.Show("Заполните все поля", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             else
             {
                 if (MessageBox.Show($"Редактировать данные {login}?", "Подтверждение", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
@@ -134,13 +125,13 @@ namespace Hotel
                         }
                         else
                             MessageBox.Show("Слишком короткий пароль");
-                        
+
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                 }
             }
-            
+
         }
 
         private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

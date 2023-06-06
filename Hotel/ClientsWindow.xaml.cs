@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using Microsoft.Win32;
+using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Globalization;
-using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,7 +15,7 @@ namespace Hotel
     /// <summary>
     /// Логика взаимодействия для ClientsWindow.xaml
     /// </summary>
-    public partial class ClientsWindow : Window
+    public partial class ClientsWindow : System.Windows.Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=.\\hotel.db");
         string query = "SELECT name AS 'ФИО', status_clients.status AS 'Статус', pasport AS 'Паспорт', gender AS 'Пол', strftime('%d.%m.%Y', birthday) AS 'Дата рождения', address AS 'Адрес', clients.description AS 'Описание' FROM clients, status_clients where status_clients.id = clients.status";
@@ -41,13 +44,13 @@ namespace Hotel
             {
                 sqlConnection.Open();
                 SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-                DataTable dataTable = new DataTable();
+                System.Data.DataTable dataTable = new System.Data.DataTable();
                 dataAdapter.Fill(dataTable);
                 dataGrid.ItemsSource = dataTable.DefaultView;
-                ClearTxt();   
-                sqlConnection.Close();            
+                ClearTxt();
+                sqlConnection.Close();
             }
-            catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message);  sqlConnection.Close();}
+            catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message); sqlConnection.Close(); }
         }
 
         public void ClearTxt()
@@ -116,7 +119,7 @@ namespace Hotel
             command.Parameters.AddWithValue("@find", txt_find.Text);
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter();
             dataAdapter.SelectCommand = command;
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid.ItemsSource = dataTable.DefaultView;
             sqlConnection.Close();
@@ -214,5 +217,109 @@ namespace Hotel
             }
         }
 
+        private void print_Click(object sender, RoutedEventArgs e)
+        {
+            // Создаем Excel приложение
+            var excelApp = new Microsoft.Office.Interop.Excel.Application();
+            var workbook = excelApp.Workbooks.Add();
+            try
+            {
+
+                var filename = DateTime.Now.ToString("dd-MM-yyyy") + "-Клиенты.xlsx";
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Excel (*.xlsx)|*.xlsx",
+                    Title = "Export data to an Excel file",
+                    FileName = filename
+                };
+                if (saveFileDialog.ShowDialog() != true)
+                    return;
+
+
+                SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+
+                var dataTable = new System.Data.DataTable();
+                using (var connection = new SQLiteConnection(conn))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand("SELECT name AS n, status_clients.status AS s, pasport AS p, gender AS g, strftime('%d.%m.%Y', birthday) AS b, address AS a, clients.description AS d FROM clients, status_clients where status_clients.id = clients.status", connection))
+                    {
+                        var adapter = new SQLiteDataAdapter(command);
+                        adapter.Fill(dataTable);
+                    }
+                    connection.Close();
+                }
+                excelApp.DisplayAlerts = false; // выключить диалоги предупреждений.
+                                                // Заполняем лист данными
+                Worksheet worksheet = excelApp.ActiveSheet;
+                worksheet.Name = "Клиенты";
+
+
+                worksheet.Cells[1, 1] = DateTime.Now.ToString("dd.MM.yyyy");
+                worksheet.Cells[1, 1].Font.Bold = true;
+                worksheet.Range["A1:C1"].Merge();
+
+                worksheet.Range["A3:G3"].Merge();
+                worksheet.Cells[3, 1].Font.Bold = true;
+                worksheet.Cells[3, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                worksheet.Cells[3, 1] = "Клиенты";
+
+                worksheet.Cells[5, 1] = "ФИО";
+                worksheet.Cells[5, 2] = "Статус";
+                worksheet.Cells[5, 3] = "Паспорт";
+                worksheet.Cells[5, 4] = "Пол";
+                worksheet.Cells[5, 5] = "Дата рождения";
+                worksheet.Cells[5, 6] = "Адрес";
+                worksheet.Cells[5, 7] = "Описание";
+                worksheet.Range["A5:G5"].Font.Bold = true;
+                worksheet.Range["A5:A25"].Font.Bold = true;
+
+                //worksheet.Range["A6:F30"].EntireColumn.AutoFit();
+                worksheet.Columns[1].ColumnWidth = 35;
+                worksheet.Columns[2].ColumnWidth = 13;
+                worksheet.Columns[3].ColumnWidth = 80;
+                worksheet.Columns[4].ColumnWidth = 12;
+                worksheet.Columns[5].ColumnWidth = 15;
+                worksheet.Columns[6].ColumnWidth = 50;
+                worksheet.Columns[7].ColumnWidth = 50;
+                //worksheet.Range["D6:D30"].NumberFormat = "0.00";
+                worksheet.Range["A:Z"].Font.Name = "Times New Roman";
+
+                // Заполнение ячеек листа из объекта DataTable.
+                int row = 6;
+                foreach (DataRow dataRow in dataTable.Rows)
+                {
+                    worksheet.Cells[row, 1] = dataRow["n"];
+                    worksheet.Cells[row, 2] = dataRow["s"];
+                    worksheet.Cells[row, 3] = dataRow["p"];
+                    worksheet.Cells[row, 4] = dataRow["g"];
+                    worksheet.Cells[row, 5] = dataRow["b"];
+                    worksheet.Cells[row, 6] = dataRow["a"];
+                    worksheet.Cells[row, 7] = dataRow["d"];
+                    row++;
+                }
+                //var range = worksheet.Range["A5:F" + --row];
+                //var borders = range.Borders;
+                //borders.LineStyle = XlLineStyle.xlContinuous;
+                //borders.Weight = 2d;
+
+                // Сохраняем файл
+                workbook.SaveAs(saveFileDialog.FileName);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+
+                // Открываем файл на просмотр
+                Process.Start("Excel.exe", saveFileDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
+        }
     }
 }

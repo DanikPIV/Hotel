@@ -6,25 +6,20 @@
         xmlns:local="clr-namespace:Hotel"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="ChartWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Title="Статистика" Height="336" Width="330" MinHeight="336" MinWidth="330" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow">
     <Grid>
-        <TabControl Style="{StaticResource MaterialDesignTabControl}" SelectedIndex="0">
-            <TabItem Header="Популярность номеров" HorizontalAlignment="Left">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="Доходность номеров" HorizontalAlignment="Left">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="Доходность услуг" HorizontalAlignment="Left">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="Динамика выручки от сдачи по месяцам">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="Доходность по клиентам">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-        </TabControl>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Width="279">
+            <DatePicker x:Name="date_picker1" materialDesign:HintAssist.Hint="по*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Width="128"/>
+            <DatePicker x:Name="date_picker2" materialDesign:HintAssist.Hint="с*" Margin="5 5 5 5" Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Width="128"/>
+
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,62,0,0">
+            <Button x:Name="print" Content="Популярность номеров" Margin="5" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print_Click"/>
+            <Button x:Name="print1" Content="Доходность номеров" Margin="5" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print1_Click" />
+            <Button x:Name="print3" Content="Динамика выручки от сдачи по номерам" Margin="5" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print3_Click" />
+            <Button x:Name="print4" Content="Доходность по клиентам" Margin="5" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print4_Click" />
+            
+        </StackPanel>
 
     </Grid>
 </Window>

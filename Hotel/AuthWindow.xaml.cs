@@ -55,10 +55,10 @@ namespace Hotel
                     using (SQLiteConnection connection = new SQLiteConnection(sqlConnection))
                     {
                         connection.Open();
-                        SQLiteCommand command = new SQLiteCommand("UPDATE users SET current = 1 WHERE login = '"+ login+"'", connection);
+                        SQLiteCommand command = new SQLiteCommand("UPDATE users SET current = 1 WHERE login = '" + login + "'", connection);
                         command.ExecuteNonQuery();
                     }
-                MessageBox.Show("Добро пожаловать!");
+                    MessageBox.Show("Добро пожаловать!");
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
@@ -89,14 +89,14 @@ namespace Hotel
                 Show();
             }
             else
-            {                
+            {
                 // Открываем окно авторизации
                 Show();
-                    
+
                 conn.Close();
-                
+
             }
         }
     }
-    
+
 }

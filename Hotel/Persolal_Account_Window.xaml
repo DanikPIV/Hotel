@@ -26,7 +26,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
             <Button  x:Name="dolgBtn" Content="Должники" Margin="5,0,5,0" Style="{StaticResource MaterialDesignOutlinedButton}" Click="dolgBtn_Click"/>
-            <Button x:Name="print" Content="Печать" HorizontalAlignment="Right" Grid.Column="1" VerticalAlignment="Center" Margin="7,0,11,0" Style="{StaticResource MaterialDesignOutlinedButton}"/>
+            <Button x:Name="print" Content="Печать" HorizontalAlignment="Right" Grid.Column="1" VerticalAlignment="Center" Margin="7,0,11,0" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print_Click"/>
             <Button x:Name="Clientbtn" Content="Клиенты" Margin="11,0,5,0" Click="Clientbtn_Click" Background="#FF0800FF"/>
 
         </StackPanel>
@@ -44,6 +44,8 @@
         <TextBlock x:Name="txt_balance" Text="Остаток:" Style="{StaticResource MaterialDesignHeadline5TextBlock}" KeyUp="txt_find_KeyUp" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,8" Foreground="Blue" Height="32" FontWeight="Bold"/>
 
         <StackPanel  Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,0,15,5">
+            <Button x:Name="print_pay" Content="Счет на оплату" HorizontalAlignment="Right" Grid.Column="1" VerticalAlignment="Center" Margin="7,0,11,0" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print_pay_Click"/>
+
             <Button x:Name="delButton" Margin="5" Content="-" VerticalAlignment="Center" Click="delButton_Click" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Height="27" Width="27"/>
             <Button x:Name="addButton" Margin="5" Content="+" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Height="27" Width="27"/>
             <Button x:Name="editButton" Margin="5" Content="Редактировать" Click="editButton_Click" Height="30"/>

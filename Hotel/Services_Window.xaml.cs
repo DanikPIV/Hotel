@@ -41,13 +41,13 @@ namespace Hotel
         }
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            var isValid = Regex.IsMatch(txt_price.Text+e.Text, @"\A[0-9]+(?:[.,])?(?:[0-9]{1,2})?\z");
+            var isValid = Regex.IsMatch(txt_price.Text + e.Text, @"\A[0-9]+(?:[.,])?(?:[0-9]{1,2})?\z");
             if (!isValid)
             {
                 e.Handled = true;
             }
         }
-    
+
         private void back_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -66,16 +66,16 @@ namespace Hotel
                     sqlConnection.Open();
 
                     string sql = "INSERT INTO services (service, price, description) VALUES (@service,  @price,  @description)";
-                    SQLiteCommand command = new SQLiteCommand(sql, sqlConnection); 
+                    SQLiteCommand command = new SQLiteCommand(sql, sqlConnection);
                     command.Parameters.AddWithValue("@service", txt_service.Text);
-                    command.Parameters.AddWithValue("@price", txt_price.Text.Replace(",","."));
+                    command.Parameters.AddWithValue("@price", txt_price.Text.Replace(",", "."));
                     command.Parameters.AddWithValue("@description", txt_description.Text);
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
-                refresh_table();
+                    refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);  sqlConnection.Close();}
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
             }
         }

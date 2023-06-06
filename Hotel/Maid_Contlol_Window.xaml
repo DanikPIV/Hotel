@@ -25,7 +25,7 @@
             <Button x:Name="delButton" Content="Удалить" Margin="40 10 10 10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="delButton_Click"/>
             <Button x:Name="editButton" Content="Редактировать" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="editButton_Click"/>
             <Button x:Name="addButton" Content="Добавить" Margin="10" Click="addButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-            <Button x:Name="print" Content="Печать" Margin="10" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignOutlinedButton}"/>
+            <Button x:Name="print" Content="Печать" Margin="10" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print_Click"/>
 
         </StackPanel>
         <DataGrid x:Name="dataGrid" Margin="5,5,5,5" AutoGenerateColumns="True"  IsReadOnly="True" Grid.Row="0" SelectionChanged="dataGrid_SelectionChanged" Style="{StaticResource MaterialDesignDataGrid}">
@@ -57,7 +57,6 @@
             </ComboBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">
-            <Button x:Name="maids_service_btn" Content="Услуги" Margin="10" VerticalAlignment="Bottom" Click="maids_service_btn_Click" Background="#FF0800FF"/>
             <Button x:Name="maids_btn" Content="Персонал" Margin="10" VerticalAlignment="Bottom" Click="maids_btn_Click" Background="#FF0800FF"/>
             <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
         </StackPanel>

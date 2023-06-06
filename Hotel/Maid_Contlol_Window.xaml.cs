@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using Microsoft.Win32;
+using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,7 +13,7 @@ namespace Hotel
     /// <summary>
     /// Логика взаимодействия для Maid_Contlol_Window.xaml
     /// </summary>
-    public partial class Maid_Contlol_Window : Window
+    public partial class Maid_Contlol_Window : System.Windows.Window
     {
         SQLiteConnection sqlConnection = new SQLiteConnection("Data Source=hotel.db");
         string query = "SELECT control_maids.id as 'Шифр', strftime('%d.%m.%Y', date) AS 'Дата и время', num AS 'Номер',  services_rooms.description AS 'Вид работ', name AS 'ФИО ответственного', complited AS 'Выполнено' FROM maids, control_maids, services_rooms, rooms where service = services_rooms.id AND maid = maids.id AND room_num = rooms.id";
@@ -61,7 +65,7 @@ namespace Hotel
         {
             sqlConnection.Open();
             SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(query, sqlConnection);
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataAdapter.Fill(dataTable);
             dataGrid.ItemsSource = dataTable.DefaultView;
             ClearTxt();
@@ -113,7 +117,7 @@ namespace Hotel
                     sqlConnection.Close();
                     refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" +ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);  sqlConnection.Close(); }
+                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); sqlConnection.Close(); }
 
             }
         }
@@ -142,7 +146,7 @@ namespace Hotel
                         }
                         id = null;
                     }
-                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" +ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
 
                 }
@@ -184,7 +188,7 @@ namespace Hotel
                             }
                             id = null;
                         }
-                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" +ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                        catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
                     }
                 }
@@ -229,7 +233,7 @@ namespace Hotel
         {
             Servises_of_room_Window servises_Of_Room_Window = new Servises_of_room_Window();
             servises_Of_Room_Window.ShowDialog();
-
+            sqlConnection.Open();
             comboBox_service.Items.Clear();
             string query1 = "SELECT description FROM services_rooms";
             SQLiteCommand command1 = new SQLiteCommand(query1, sqlConnection);
@@ -241,12 +245,14 @@ namespace Hotel
                     comboBox_service.Items.Add(serv);
                 }
             }
+            sqlConnection.Close();
         }
 
         private void maids_btn_Click(object sender, RoutedEventArgs e)
         {
             Maid_Window maid_Window = new Maid_Window();
             maid_Window.ShowDialog();
+            sqlConnection.Open();
             comboBox_name.Items.Clear();
             string query2 = "SELECT name FROM maids";
             SQLiteCommand command2 = new SQLiteCommand(query2, sqlConnection);
@@ -257,6 +263,96 @@ namespace Hotel
                     string name = reader2.GetString(0);
                     comboBox_name.Items.Add(name);
                 }
+            }
+            sqlConnection.Close();
+        }
+
+        private void print_Click(object sender, RoutedEventArgs e)
+        {
+            // Создаем Excel приложение
+            var excelApp = new Microsoft.Office.Interop.Excel.Application();
+            var workbook = excelApp.Workbooks.Add();
+            try
+            {
+
+                var filename = DateTime.Now.ToString("dd-MM-yyyy") + "-Контроль_службы_горничных.xlsx";
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Excel (*.xlsx)|*.xlsx",
+                    Title = "Export data to an Excel file",
+                    FileName = filename
+                };
+                if (saveFileDialog.ShowDialog() != true)
+                    return;
+
+
+                SQLiteConnection conn = new SQLiteConnection("Data Source=hotel.db");
+
+                var dataTable = new System.Data.DataTable();
+                using (var connection = new SQLiteConnection(conn))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand(query, connection))
+                    {
+                        var adapter = new SQLiteDataAdapter(command);
+                        adapter.Fill(dataTable);
+                    }
+                    connection.Close();
+                }
+                excelApp.DisplayAlerts = false; // выключить диалоги предупреждений.
+                                                // Заполняем лист данными
+                Worksheet worksheet = excelApp.ActiveSheet;
+                worksheet.Name = "Контроль_службы_горничных";
+
+
+                worksheet.Cells[1, 1] = DateTime.Now.ToString("dd.MM.yyyy");
+                worksheet.Cells[1, 1].Font.Bold = true;
+                worksheet.Range["A1:C1"].Merge();
+
+                worksheet.Range["A3:C3"].Merge();
+
+                worksheet.Cells[3, 1].Font.Bold = true;
+                worksheet.Cells[3, 1].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                worksheet.Cells[3, 1] = "Контроль службы горничных";
+
+                for (int i = 0; i < dataTable.Columns.Count; i++)
+                {
+                    worksheet.Cells[5, i + 1] = dataTable.Columns[i].ColumnName;
+                }
+                worksheet.Range["A5:Z5"].Font.Bold = true;
+
+                worksheet.Range["A6:I30"].EntireColumn.AutoFit();
+                worksheet.Columns[5].ColumnWidth = 50;
+                worksheet.Columns[4].ColumnWidth = 50;
+                worksheet.Range["A:Z"].Font.Name = "Times New Roman";
+
+                // Заполнение ячеек листа из объекта DataTable.
+                int row = 6;
+                foreach (DataRow dataRow in dataTable.Rows)
+                {
+                    for (int i = 0; i < dataTable.Columns.Count; i++)
+                    {
+                        worksheet.Cells[row, i + 1] = dataRow[dataTable.Columns[i].ColumnName];
+                    }
+                    row++;
+                }
+
+                // Сохраняем файл
+                workbook.SaveAs(saveFileDialog.FileName);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+
+                // Открываем файл на просмотр
+                Process.Start("Excel.exe", saveFileDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка сохранения.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                workbook.Close();
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
             }
         }
     }

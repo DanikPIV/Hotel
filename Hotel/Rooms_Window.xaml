@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="311*"/>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="330"/>
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center">
 
@@ -45,7 +45,7 @@
                 <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
             </DataGrid.Effect>
         </DataGrid>
-        <StackPanel  HorizontalAlignment="Center" Margin="0,13,0,0" Grid.Column="1" MinWidth="280" Width="260" Grid.Row="0">
+        <StackPanel Margin="5,13,5,0" Grid.Column="1" MinWidth="280" Grid.Row="0">
             <TextBox x:Name="txt_num" materialDesign:HintAssist.Hint="№*" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <ComboBox x:Name="comboBox_type" materialDesign:HintAssist.Hint="Тип комнаты*" Margin="5,20,5,5" Style="{StaticResource MaterialDesignComboBox}" SelectedIndex="0"/>
             <TextBox x:Name="txt_floor" materialDesign:HintAssist.Hint="Этаж" Margin="5" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
@@ -57,6 +57,8 @@
             <Button Content=". . ." Click="Button_Click" HorizontalAlignment="Right" Margin="0,-30,15,0" Style="{StaticResource MaterialDesignFloatingActionButton}" Height="30" Width="30"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1"  Grid.Row="1">
+            <Button x:Name="free_print" Content="Свободные номера" Margin="5,0,0,0" Style="{StaticResource MaterialDesignOutlinedButton}" Click="free_print_Click"/>
+            <Button x:Name="print" Content="Печать" Margin="5,0,0,0" Style="{StaticResource MaterialDesignOutlinedButton}" Click="print_Click"/>
             <Button x:Name="back" Content="Назад" Margin="5,0,0,0" Click="back_Click"/>
         </StackPanel>
     </Grid>

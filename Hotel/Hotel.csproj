@@ -115,9 +115,6 @@
     <Compile Include="ChartWindow.xaml.cs">
       <DependentUpon>ChartWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Chess_Window.xaml.cs">
-      <DependentUpon>Chess_Window.xaml</DependentUpon>
-    </Compile>
     <Compile Include="choiceClientsWindow.xaml.cs">
       <DependentUpon>choiceClientsWindow.xaml</DependentUpon>
     </Compile>
@@ -141,6 +138,9 @@
       <DependentUpon>MainWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="hotel\User.cs" />
+    <Compile Include="MessggeBoks.xaml.cs">
+      <DependentUpon>MessggeBoks.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Persolal_Account_Window.xaml.cs">
       <DependentUpon>Persolal_Account_Window.xaml</DependentUpon>
     </Compile>
@@ -184,10 +184,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Chess_Window.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="choiceClientsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -224,6 +220,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MessggeBoks.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Persolal_Account_Window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

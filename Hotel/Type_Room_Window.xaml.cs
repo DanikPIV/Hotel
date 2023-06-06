@@ -68,10 +68,13 @@ namespace Hotel
                     command.ExecuteNonQuery();
 
                     sqlConnection.Close();
-                refresh_table();
+                    refresh_table();
                 }
-                catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); 
-                    sqlConnection.Close();}
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    sqlConnection.Close();
+                }
 
             }
         }
@@ -94,10 +97,10 @@ namespace Hotel
                             command.Parameters.AddWithValue("@type", type);
                             command.ExecuteNonQuery();
                             refresh_table();
-                           }
-                    type = null;
+                        }
+                        type = null;
                     }
-                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);}
+                    catch (Exception ex) { MessageBox.Show("Ошибка базы данных.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
 
 
                 }
